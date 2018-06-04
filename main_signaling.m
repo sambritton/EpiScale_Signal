@@ -1,9 +1,10 @@
 function main_signaling(index_couple)
 
-global thres_lateral thres_edge thres_nodes
+global thres_lateral thres_edge thres_nodes show_fig
 thres_lateral = 0.64; % need to adjust carefully to avoid triangles at junctions
 thres_edge = 0.005;
 thres_nodes = 0.64;
+show_fig = 0;
 
 % load cell configuration from mechanical submodel
 epi_nodes = load(['ExportCellProp_' num2str(index_couple) '.txt']);
@@ -38,8 +39,10 @@ for i = 0:total_cell-1
     end
 end
 
-%figure(1); hold on;
-%plot(cell_nodes(:,1),cell_nodes(:,2),'r.');
+if show_fig
+figure(1); hold on;
+% plot(cell_nodes(:,1),cell_nodes(:,2),'r.');
+end
 
 % plot(intf_0_1(:,1),intf_0_1(:,2),'o-');
 % plot(intf_0_4(:,1),intf_0_4(:,2),'o-');
@@ -93,6 +96,7 @@ for i = 0:total_cell-1
     eval(['[vt_' num2str(i) '] = unique(vt_' num2str(i) ',''rows'');']);
     
 end
+
 
 % for i = 0:total_cell-1
 %     eval(['plot(vt_' num2str(i) '(:,1),vt_' num2str(i) '(:,2),''o'');']); 
@@ -163,19 +167,21 @@ for i = 0:total_cell-1
 end
        
 % visualize the triangular mesh
-%for i = 0:total_cell-1
-%    eval(['plot(vt_' num2str(i) '(:,1),vt_' num2str(i) '(:,2),''*'');']); 
-%end
-%saveas(figure(1),'vertices.fig'); 
+if show_fig
+for i = 0:total_cell-1
+   eval(['plot(vt_' num2str(i) '(:,1),vt_' num2str(i) '(:,2),''*'');']); 
+end
+% saveas(figure(1),'vertices.fig'); 
 
 for i = 0:total_cell-1
     eval(['temp = vt_' num2str(i) ';']);
-%    plot([temp(:,1); temp(1,1)],[temp(:,2); temp(1,2)],'b')
-%    for j = 1:size(temp,1)
-%        eval(['plot([centroid_' num2str(i) '(1) temp(' num2str(j) ',1)],[centroid_' num2str(i) '(2) temp(' num2str(j) ',2)],''b'');']);
-%    end
+    plot([temp(:,1); temp(1,1)],[temp(:,2); temp(1,2)],'b')
+    for j = 1:size(temp,1)
+        eval(['plot([centroid_' num2str(i) '(1) temp(' num2str(j) ',1)],[centroid_' num2str(i) '(2) temp(' num2str(j) ',2)],''b'');']);
+    end
 end
-%saveas(figure(1),'triangle_mesh.fig'); 
+saveas(figure(1),'triangle_mesh.fig'); 
+end
 
 
 % solve u_t = D(u_xx+u_yy)-du+source on the triangular mesh by
@@ -189,7 +195,7 @@ for i = 0:total_cell-1
     eval(['mesh_size = mesh_size + num_tri_' num2str(i) ';']);
 end
 u = zeros(mesh_size,1);
-Area_vec = zeros(mesh_size,1);
+mesh_area = zeros(mesh_size,1);
 index_area = 1;
 for i = 0:total_cell-1
     eval(['jend=num_tri_' num2str(i) ';']);
@@ -202,7 +208,7 @@ for i = 0:total_cell-1
         end
         eval(['vt1 = pt1-centroid_' num2str(i) ';']);
         eval(['vt2 = pt2-centroid_' num2str(i) ';']);
-        Area_vec(index_area) = vt1(1)*vt2(2)-vt1(2)*vt2(1);
+        mesh_area(index_area) = vt1(1)*vt2(2)-vt1(2)*vt2(1);
         index_area = index_area + 1;
     end
 end
@@ -239,17 +245,22 @@ for i = 0:total_cell-1
         eval(['[ind2] = find(sum(abs(vt_all-repmat(vt_' num2str(i) '(jnext,:),mesh_size,1)),2)==0);']);
         if length(ind1)>1 && length(ind2)>1
             eval(['Ledge = pdist(vt_' num2str(i) '([j jnext],:));']);
-            ind1_sort = sort(ind1);
-            ind2_sort = sort(ind2); 
-            if abs(ind1_sort(1)-ind2_sort(1)) ==1
-                tri_1 = min(ind1_sort(1),ind2_sort(1));
+            % find two pairs with minimum differences corresponding to
+            % contacting edges
+            diff = repmat(ind1,1,length(ind2))-repmat(ind2',length(ind1),1);
+            diff = abs(diff);
+            [val,I2] = min(diff,[],2);
+            [val,I1] = sort(val);
+            common_edge = [ind1(I1(1)),ind2(I2(I1(1)));ind1(I1(2)),ind2(I2(I1(2)))];
+            if abs(common_edge(1,1)-common_edge(1,2)) ==1
+                tri_1 = min(common_edge(1,1),common_edge(1,2));
             else
-                tri_1 = max(ind1_sort(1),ind2_sort(1));
+                tri_1 = max(common_edge(1,1),common_edge(1,2));
             end
-            if abs(ind1_sort(2)-ind2_sort(2)) ==1
-                tri_2 = min(ind1_sort(2),ind2_sort(2));
+            if abs(common_edge(2,1)-common_edge(2,2)) ==1
+                tri_2 = min(common_edge(2,1),common_edge(2,2));
             else
-                tri_2 = max(ind1_sort(2),ind2_sort(2));
+                tri_2 = max(common_edge(2,1),common_edge(2,2));
             end
             NI_mat(tri_1,tri_2) = 1;
             NI_mat(tri_2,tri_1) = 1;
@@ -297,17 +308,32 @@ else
     load tissue_inf.mat;
 end
 
-[ind] = find(abs(cell_nodes(:,1)-tissue_centroid(1))<0.12*tissue_r);
-source_cellid = unique(cell_nodes(ind,3));
-source_cellid = sort(source_cellid,'ascend');
+% % cells with at lease one cell_nodes in the source region is considered as
+% % source cell with constant production rate
+% [ind] = find(abs(cell_nodes(:,1)-tissue_centroid(1))<0.12*tissue_r);
+% source_cellid = unique(cell_nodes(ind,3));
+% source_cellid = sort(source_cellid,'ascend');
+% u_source = [];
+% for i = 0:total_cell-1
+%     temp = ismember(i,source_cellid);
+%     if temp == 1
+%         eval(['u_source = [u_source; ones(num_tri_' num2str(i) ',1)];']);
+%     else
+%         eval(['u_source = [u_source; zeros(num_tri_' num2str(i) ',1)];']);
+%     end
+% end
+
+% cells with vectices in the source region is considered as source cell
+% with the production rate proportional to the area within the source
+% region
 u_source = [];
+num_tri_pre = 0;
 for i = 0:total_cell-1
-    temp = ismember(i,source_cellid);
-    if temp == 1
-        eval(['u_source = [u_source; ones(num_tri_' num2str(i) ',1)];']);
-    else
-        eval(['u_source = [u_source; zeros(num_tri_' num2str(i) ',1)];']);
-    end
+    eval(['num_tri = num_tri_' num2str(i) ';']);
+    temp_centroid = mesh_centroids(num_tri_pre+1:num_tri_pre+num_tri,:);
+    temp_area     = mesh_area(num_tri_pre+1:num_tri_pre+num_tri);
+    u_source = [u_source; (abs(temp_centroid(:,1)-tissue_centroid(1))<0.12*tissue_r).*temp_area];
+    num_tri_pre = num_tri_pre + num_tri;
 end
 
 
@@ -341,10 +367,10 @@ for i = 0:total_cell-1
         else
              jnext = j+1;
          end
-%         eval(['fill([vt_' num2str(i) '(j,1) vt_' num2str(i) '(jnext,1) centroid_' num2str(i) '(1)],[vt_' num2str(i) '(j,2) vt_' num2str(i) '(jnext,2) centroid_' num2str(i) '(2)],Dpp(num_tri_pre+j));']);
+        if show_fig; eval(['fill([vt_' num2str(i) '(j,1) vt_' num2str(i) '(jnext,1) centroid_' num2str(i) '(1)],[vt_' num2str(i) '(j,2) vt_' num2str(i) '(jnext,2) centroid_' num2str(i) '(2)],Dpp(num_tri_pre+j));']); end;
      end
 %     Dpp_cell(i+1) = sum(Dpp(num_tri_pre+1:num_tri_pre+num_tri))/num_tri;
-     Dpp_cell(i+1) = sum(Dpp(num_tri_pre+1:num_tri_pre+num_tri).*Area_vec(num_tri_pre+1:num_tri_pre+num_tri))/sum(Area_vec(num_tri_pre+1:num_tri_pre+num_tri));
+     Dpp_cell(i+1) = sum(Dpp(num_tri_pre+1:num_tri_pre+num_tri).*mesh_area(num_tri_pre+1:num_tri_pre+num_tri))/sum(mesh_area(num_tri_pre+1:num_tri_pre+num_tri));
      num_tri_pre = num_tri_pre + num_tri;
  end
 % colorbar;
@@ -360,7 +386,7 @@ for i = 0:total_cell-1
          end
 %         eval(['fill([vt_' num2str(i) '(j,1) vt_' num2str(i) '(jnext,1) centroid_' num2str(i) '(1)],[vt_' num2str(i) '(j,2) vt_' num2str(i) '(jnext,2) centroid_' num2str(i) '(2)],Tkv(num_tri_pre+j));']);
      end
-     Tkv_cell(i+1) = sum(Tkv(num_tri_pre+1:num_tri_pre+num_tri))/num_tri;
+     Tkv_cell(i+1) = sum(Tkv(num_tri_pre+1:num_tri_pre+num_tri).*mesh_area(num_tri_pre+1:num_tri_pre+num_tri))/sum(mesh_area(num_tri_pre+1:num_tri_pre+num_tri));
      num_tri_pre = num_tri_pre + num_tri;
  end
 % colorbar;
@@ -376,7 +402,7 @@ for i = 0:total_cell-1
          end
 %         eval(['fill([vt_' num2str(i) '(j,1) vt_' num2str(i) '(jnext,1) centroid_' num2str(i) '(1)],[vt_' num2str(i) '(j,2) vt_' num2str(i) '(jnext,2) centroid_' num2str(i) '(2)],DT(num_tri_pre+j));']);
      end
-     DT_cell(i+1) = sum(DT(num_tri_pre+1:num_tri_pre+num_tri))/num_tri;
+     DT_cell(i+1) = sum(DT(num_tri_pre+1:num_tri_pre+num_tri).*mesh_area(num_tri_pre+1:num_tri_pre+num_tri))/sum(mesh_area(num_tri_pre+1:num_tri_pre+num_tri));
      num_tri_pre = num_tri_pre + num_tri;
  end
 % colorbar;
@@ -392,7 +418,7 @@ for i = 0:total_cell-1
          end
 %         eval(['fill([vt_' num2str(i) '(j,1) vt_' num2str(i) '(jnext,1) centroid_' num2str(i) '(1)],[vt_' num2str(i) '(j,2) vt_' num2str(i) '(jnext,2) centroid_' num2str(i) '(2)],pMad(num_tri_pre+j));']);
      end
-     pMad_cell(i+1) = sum(pMad(num_tri_pre+1:num_tri_pre+num_tri))/num_tri;
+     pMad_cell(i+1) = sum(pMad(num_tri_pre+1:num_tri_pre+num_tri).*mesh_area(num_tri_pre+1:num_tri_pre+num_tri))/sum(mesh_area(num_tri_pre+1:num_tri_pre+num_tri));
      num_tri_pre = num_tri_pre + num_tri;
  end
 % colorbar;
