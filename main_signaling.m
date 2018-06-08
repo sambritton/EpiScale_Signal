@@ -1,4 +1,8 @@
 function main_signaling(index_couple)
+% testing biased cell division in A P compartments
+% Known: with width and amplitude fixed for the source, no cells divide
+% goal: change the amplitude in u_source and fix and width, do cells divide
+% symmetrically in A P compartments?
 
 global thres_lateral thres_edge thres_nodes show_fig
 thres_lateral = 0.64; % need to adjust carefully to avoid triangles at junctions
@@ -335,7 +339,8 @@ for i = 0:total_cell-1
     u_source = [u_source; (abs(temp_centroid(:,1)-tissue_centroid(1))<0.12*tissue_r).*temp_area];
     num_tri_pre = num_tri_pre + num_tri;
 end
-
+% change the magnitude
+u_source = u_source * (0.25*index_couple+1);
 
 Dpp_mat = zeros(mesh_size,4);
 dt = 0.002;
