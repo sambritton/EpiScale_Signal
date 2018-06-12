@@ -294,7 +294,7 @@ L_mat = L_mat + 10000*eye(mesh_size); %avoid singularities
 
 % source cells: located within 12% of the total tissue size around the
 % midline
-if index_couple == 0
+% if index_couple == 0
     tissue_centroid = zeros(1,2);
     for i = 1:total_cell
         eval(['tissue_centroid = tissue_centroid + centroid_' num2str(i-1) ';']);
@@ -308,9 +308,9 @@ if index_couple == 0
         end
     end
     save('tissue_inf.mat','tissue_centroid','tissue_r');
-else
-    load tissue_inf.mat;
-end
+% else
+%     load tissue_inf.mat;
+% end
 
 % % cells with at lease one cell_nodes in the source region is considered as
 % % source cell with constant production rate
@@ -339,8 +339,8 @@ for i = 0:total_cell-1
     u_source = [u_source; (abs(temp_centroid(:,1)-tissue_centroid(1))<0.12*tissue_r).*temp_area];
     num_tri_pre = num_tri_pre + num_tri;
 end
-% change the magnitude
-u_source = u_source * (0.25*index_couple+1);
+% % change the magnitude
+% u_source = u_source * (0.25*index_couple+1);
 
 Dpp_mat = zeros(mesh_size,4);
 dt = 0.002;
