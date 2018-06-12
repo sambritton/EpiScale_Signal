@@ -2704,12 +2704,14 @@ void SceCells::updateGrowthProgress_M() {
 					+ allocPara_m.currentActiveCellCount,
 			cellInfoVecs.growthProgressOld.begin());
 
-        
-	//thrust::transform(cellInfoVecs.growthSpeed.begin(),
-	//		cellInfoVecs.growthSpeed.begin()
-	//				+ allocPara_m.currentActiveCellCount,
-	//		cellInfoVecs.growthProgress.begin(),
-	//		cellInfoVecs.growthProgress.begin(), SaxpyFunctorWithMaxOfOne(dt));
+/*        
+	thrust::transform(cellInfoVecs.growthSpeed.begin(),
+			cellInfoVecs.growthSpeed.begin()
+					+ allocPara_m.currentActiveCellCount,
+			cellInfoVecs.growthProgress.begin(),
+			cellInfoVecs.growthProgress.begin(), SaxpyFunctorWithMaxOfOne(dt));
+*/
+cout << " I am trying to update growth progress" << endl ; 
 
 
 	//double dummy=0 ;

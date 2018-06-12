@@ -2016,8 +2016,9 @@ struct RandomizeGrow_M: public thrust::unary_function<CVec3BoolInt, CVec3Bool> {
 			uint seedNew = _seed + cellRank;
 			rng.discard(seedNew);
 			double distance=sqrt( (centerX-_CntrTisuX)*(centerX-_CntrTisuX)+(centerY-_CntrTisuY)*(centerY-_CntrTisuY)) ; 
-			double randomNum1 =1.89*exp(-distance/_RTisu)*dist(rng);
-			rng.discard(seedNew);
+			//double randomNum1 =1.89*exp(-distance/_RTisu)*dist(rng);
+			double randomNum1 =dist(rng);
+			//rng.discard(seedNew);
 //			double randomNum2 = dist2(rng);
 //			double xDir = cos(randomNum2);
 //			double yDir = sin(randomNum2);
@@ -2042,7 +2043,7 @@ struct DppGrowRegulator: public thrust::unary_function<DDDD, double> {
 		double progressNew ; 
 
 		progressNew=progress+speed*_dt ; 
-		if (progress <= _mitoticCheckPoint && progressNew>_mitoticCheckPoint) {
+		if ((progress <= _mitoticCheckPoint) && (progressNew>_mitoticCheckPoint)) {
 			if (dpp/(dpp_Old+0.0005)>1.5) {
 				return (progressNew) ; 
 			}
