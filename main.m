@@ -2,7 +2,7 @@ clear all
 close all 
 clc
 
-for time_ind = 0:100000
+for time_ind = 514
     filename = ['ExportCellProp_' num2str(time_ind) '.txt'];
     display(filename);
     temp = exist(filename);
