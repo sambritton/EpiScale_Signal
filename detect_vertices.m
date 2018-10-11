@@ -1,5 +1,6 @@
 function [vt] = detect_vertices(cell)
 global thres_edge
+thres_edge = polyarea(cell(:,1),cell(:,2))/320;
 vt = cell(1,:);
 istart = 1;
 iend = 1;
