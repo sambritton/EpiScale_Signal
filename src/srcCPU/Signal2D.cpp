@@ -117,7 +117,7 @@ void Signal::importSignalInfoCellLevel() {
 			inputDpp.open(importDppFileName.c_str()) ;
 			if (inputDpp.is_open()){
 				cout<< "dpp file opened successfully"<<endl; 
-				cout << "the opened file namei is " << importDppFileName <<endl ;
+				cout << "the opened file name is " << importDppFileName <<endl ;
 				fileIsOpen=true ; 
 				 clock_t t;
 				t = clock();

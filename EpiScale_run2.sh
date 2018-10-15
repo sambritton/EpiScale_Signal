@@ -5,7 +5,7 @@
 #$ -q  *@@acms_gpu 	 # Specify queue
 #$ -l gpu_card=1 
 #s -pe smp 4 
-#$ -N  run_April20thC	 # Specify job name
+#$ -N  MechOct11	 # Specify job name
 
 
 module load matlab
