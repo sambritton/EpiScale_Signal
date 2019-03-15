@@ -5,6 +5,7 @@
 #include <time.h>  
 #include <stdlib.h>
 #include <stdio.h>
+#include "engine.h"
 
 namespace patch
 {
@@ -58,6 +59,11 @@ void Signal::exportGeometryInfo() {
  	double Center_X=minX+0.5*(maxX-minX); 
  	int cellRank ; 
 
+	Engine *ep;
+	if (!(ep = engOpen(""))) {
+		fprintf(stderr, "\nCan't start MATLAB engine\n");
+		return EXIT_FAILURE;
+	}
 
 	srand(time(NULL));
 

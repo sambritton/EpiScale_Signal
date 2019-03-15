@@ -2,6 +2,8 @@
 #include_directories(${CGAL_INCLUDE_DIRS})
 
 include_directories(${COMMON_INCLUDES})
+include_directories(/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/include)
+include_directories(/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64)
 
 add_library(SceInit
         MeshGen.cpp
@@ -10,6 +12,7 @@ add_library(SceInit
         UnstructMesh2D.h
         CellInitHelper.h
         CellInitHelper.cpp
+	/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/include/engine.h
         Signal2D.h
 	Signal2D.cpp
         ${COMMON_INCLUDES}/Point2D.cpp
@@ -32,4 +35,6 @@ endif (CGAL_FOUND)
 
 target_link_libraries(SceInit 
                         ${CGAL_LIBRARIES}
-                        ${CGAL_3RD_PARTY_LIBRARIES} )
+                        ${CGAL_3RD_PARTY_LIBRARIES} 
+			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libeng.so
+			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so )
