@@ -5,10 +5,10 @@ include_directories(${COMMON_INCLUDES})
 # by using inline functions
 #CUDA_ADD_LIBRARY(SceUtilsGPU
 #      commonGPUData.h
-#      #commonGPUData.cu
+#      #commonGPUData.cu 
 #)
 
-add_library(SceUtils
+add_library(SceUtils STATIC
       GeoVector.h
       GeoVector.cpp
       Point2D.h
@@ -22,3 +22,5 @@ add_library(SceUtils
       NetworkInfo.h
       NetworkInfo.cpp
 )
+
+target_compile_features(SceUtils PUBLIC cxx_std_11) 

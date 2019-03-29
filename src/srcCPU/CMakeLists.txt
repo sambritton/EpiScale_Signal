@@ -1,20 +1,16 @@
 #MESSAGE(${CGAL_INCLUDE_DIRS})
 #include_directories(${CGAL_INCLUDE_DIRS})
-
+include_directories(${THRUST_INCLUDE_DIR}) #specifies path that compiler looks in while searching for header files
+ 
 include_directories(${COMMON_INCLUDES})
 include_directories(/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/include)
 include_directories(/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64)
-
-add_library(SceInit
-        MeshGen.cpp
-        MeshGen.h
-        UnstructMesh2D.cpp
-        UnstructMesh2D.h
+include_directories(/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/include/MatlabEngine)
+add_library(SceInit STATIC
         CellInitHelper.h
         CellInitHelper.cpp
-	/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/include/engine.h
         Signal2D.h
-	Signal2D.cpp
+		Signal2D.cpp
         ${COMMON_INCLUDES}/Point2D.cpp
         ${COMMON_INCLUDES}/Point2D.h
         ${COMMON_INCLUDES}/ConfigParser.h
@@ -23,18 +19,12 @@ add_library(SceInit
         ${COMMON_INCLUDES}/GeoVector.cpp
 )
 
-#It seems that CMake CGAL Module would automatically add some
-#undesirable CXX FLAGS (e.g. -fstack-protector-strong, which is 
-#not supported by old version of g++.
-#Therefore, These CGAL related lines cannot be placed before building 
-#SceInit lib.
-find_package(CGAL REQUIRED)
-if(CGAL_FOUND)
-        include(${CGAL_USE_FILE})
-endif (CGAL_FOUND)
+target_compile_features(SceInit PUBLIC cxx_std_11)
 
-target_link_libraries(SceInit 
-                        ${CGAL_LIBRARIES}
-                        ${CGAL_3RD_PARTY_LIBRARIES} 
+target_link_libraries(SceInit
 			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libeng.so
-			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so )
+			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so 
+			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmex.so
+			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmat.so
+			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/bin/glnxa64/libMatlabDataArray.so
+			/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/bin/glnxa64/libMatlabEngine.so)

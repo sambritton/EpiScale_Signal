@@ -1,19 +1,56 @@
-cmake_minimum_required (VERSION 2.8.7)
+cmake_minimum_required (VERSION 3.12)
+
+#set (CMAKE_CXX_STANDARD 11)
 set(PROJECT_NAME_STR SceCellsGPU)
-#project(${PROJECT_NAME_STR} C CXX CUDA)
-project(${PROJECT_NAME_STR})
+ 
+set(CMAKE_CXX_COMPILER /opt/crc/g/gcc/7.1.0/bin/g++ CACHE PATH "" FORCE)
+
+#set(CUDA_TOOLKIT_ROOT_DIR /opt/crc/c/cuda/10.0)
+#MESSAGE("CUDA_TOOLKIT_ROOT_DIR: " ${CUDA_TOOLKIT_ROOT_DIR})
+	
+project(${PROJECT_NAME_STR} LANGUAGES CXX CUDA)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.1.0")
+    message(FATAL_ERROR "Insufficient gcc version")
+  endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "your.required.msvc.version")
+    message(FATAL_ERROR "Insufficient msvc version")
+  endif()
+endif()
+
 
 find_package(CUDA REQUIRED)
 
+find_path( THRUST_INCLUDE_DIR
+  HINTS
+    ${CUDA_INCLUDE_DIRS}
+	NAMES thrust/version.h
+	DOC "Thrust headers"
+)
+
+if( THRUST_INCLUDE_DIR )
+
+  list( REMOVE_DUPLICATES THRUST_INCLUDE_DIR )
+endif( THRUST_INCLUDE_DIR )
+MESSAGE("thrust include dir : " ${THRUST_INCLUDE_DIR}) 
+MESSAGE("CUDA_INCLUDE_DIRS: " ${CUDA_INCLUDE_DIRS})
+
+
+include_directories(${THRUST_INCLUDE_DIR}) #specifies path that compiler looks in while searching for header files
+
+
 if(CMAKE_COMPILER_IS_GNUCXX)
-        add_definitions(-Wall -ansi -Wno-deprecated -fpermissive -frounding-math)
+        #add_definitions(-Wall -ansi -Wno-deprecated -fpermissive -frounding-math)
 endif()
 
 # After some performance testing, there is no significant performance difference
 # between compute_20 and compute_30. 
 # Therefore, for compatibility reason, compute 2.0 is used.
-# set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -DTHRUST_DEBUG -gencode arch=compute_20,code=sm_20)
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -gencode arch=compute_20,code=compute_20)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -DTHRUST_DEBUG)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -gencode arch=compute_30,code=compute_30)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -gencode arch=compute_50,code=compute_50)
 
 MESSAGE("NVCC flags are : " ${CUDA_NVCC_FLAGS})
 
@@ -57,13 +94,10 @@ SET(STL_INCLUDE_PATH "${STDIO_INCLUDE_PATH}/c++")
 SET(CMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT TRUE)
 include_directories(${STL_INCLUDE_PATH} ${STDIO_INCLUDE_PATH})
 
-find_package(CGAL QUIET COMPONENTS Core)
-include(${CGAL_USE_FILE})
-include_directories(${CGAL_INCLUDE_DIRS})
-
 if(CUDA_FOUND)
         include_directories(${CUDA_INCLUDE_DIRS})
 endif (CUDA_FOUND)
+
 
 CUDA_INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}
@@ -92,12 +126,15 @@ if(BUILD_DOCUMENTATION)
   # then leave out the 'ALL' keyword from the above command.
 endif()
 
+MESSAGE("CMAKE_CXX_COMPLIER: " ${CMAKE_CXX_COMPLIER})
 # This manual CXX FLAGS setting is required, because the some version of CMAKE would use an unsupported CMAKE_CXX_FLAGS and result in compliation failure.
 # more specifically, -fstack-protector-strong option is not supported by g++ until g++-4.9, but it is enabled by default in CMake 2.8.12
 # however g++-4.9 is not supported by nvcc 5.5
 set(CMAKE_CXX_FLAGS "-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security  -frounding-math")
 MESSAGE("manually resetting g++ flags to : " ${CMAKE_CXX_FLAGS})
 
+
+	MESSAGE("CMAKE_CXX_COMPILER: " ${CMAKE_CXX_COMPILER})
 #add_subdirectory(${EXT_PROJECTS_DIR}/gtest)
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src)
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tst)

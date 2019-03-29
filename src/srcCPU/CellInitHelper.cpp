@@ -5,6 +5,7 @@
  *      Author: wsun2
  */
 #include <fstream>
+
 #include "CellInitHelper.h"
 //Ali 
 ForReadingData_M2 ReadFile_M2(std::string CellCentersFileName) {
@@ -58,13 +59,13 @@ CVector CellInitHelper::getPointGivenAngle(double currentAngle, double r,
 
 RawDataInput CellInitHelper::generateRawInputWithProfile(
 		std::vector<CVector> &cellCenterPoss, bool isInnerBdryIncluded) {
-
+	
 	RawDataInput rawData;
 	vector<CVector> outsideBdryNodePos;
 	vector<CVector> outsideProfileNodePos;
 	std::string bdryInputFileName = globalConfigVars.getConfigValue(
 			"Bdry_InputFileName").toString();
-
+	/*
 	GEOMETRY::MeshGen meshGen;
 
 	double genBdryRatio =
@@ -111,7 +112,7 @@ RawDataInput CellInitHelper::generateRawInputWithProfile(
 	}
 
 	generateCellInitNodeInfo_v2(rawData.initCellNodePoss);
-
+	*/
 	return rawData;
 }
 
@@ -120,7 +121,7 @@ RawDataInput CellInitHelper::generateRawInput_simu(
 	if (simuType == Beak) {
 		RawDataInput baseRawInput = generateRawInputWithProfile(cellCenterPoss,
 				false);
-
+		/*
 		GEOMETRY::MeshGen meshGen;
 		double genBdryRatio = globalConfigVars.getConfigValue(
 				"GenBdrySpacingRatio").toDouble();
@@ -133,6 +134,7 @@ RawDataInput CellInitHelper::generateRawInput_simu(
 
 		baseRawInput.isStab = false;
 		baseRawInput.simuType = simuType;
+		*/
 		return baseRawInput;
 	} else if (simuType == Disc) {
 		RawDataInput rawInput;
@@ -500,7 +502,7 @@ RawDataInput CellInitHelper::generateRawInput_stab() {
 	vector<CVector> outsideBdryNodePos;
 	std::string bdryInputFileName = globalConfigVars.getConfigValue(
 			"Bdry_InputFileName").toString();
-
+	/*
 	GEOMETRY::MeshGen meshGen;
 
 	GEOMETRY::UnstructMesh2D mesh = meshGen.generateMesh2DFromFile(
@@ -540,6 +542,7 @@ RawDataInput CellInitHelper::generateRawInput_stab() {
 	generateCellInitNodeInfo_v2(rawData.initCellNodePoss);
 
 	rawData.isStab = true;
+	*/
 	return rawData;
 }
 
@@ -558,7 +561,7 @@ RawDataInput_M CellInitHelper::generateRawInput_M() {
         ForReadingData_M2 ForReadingData2 = ReadFile_M2(CellCentersFileName);
         GEOMETRY::Point2D Point2D1[ForReadingData2.CellNumber];
         //Ali 
-
+	/*
 	GEOMETRY::MeshGen meshGen;
 
 	GEOMETRY::UnstructMesh2D mesh = meshGen.generateMesh2DFromFile(
@@ -621,7 +624,7 @@ RawDataInput_M CellInitHelper::generateRawInput_M() {
 	//std::cout << "finished generate raw data" << std::endl;
 	//std::cout.flush();
 
-	rawData.isStab = true;
+	rawData.isStab = true;*/
 	return rawData;
 }
 
@@ -954,9 +957,11 @@ bool CellInitHelper::isMXType(CVector position) {
 }
 
 void CellInitHelper::initInternalBdry() {
+	/*
 	GEOMETRY::MeshGen meshGen;
 	GEOMETRY::MeshInput input = meshGen.obtainMeshInput();
 	internalBdryPts = input.internalBdryPts;
+	*/
 }
 
 SimulationInitData_V2 CellInitHelper::initStabInput() {
@@ -1038,7 +1043,7 @@ void SimulationGlobalParameter::initFromConfig() {
 RawDataInput CellInitHelper::generateRawInput_singleCell() {
 	RawDataInput rawData;
 	rawData.simuType = simuType;
-
+	/*
 	std::string initPosFileName = globalConfigVars.getConfigValue(
 			"SingleCellCenterPos").toString();
 
@@ -1054,6 +1059,7 @@ RawDataInput CellInitHelper::generateRawInput_singleCell() {
 
 	generateCellInitNodeInfo_v2(rawData.initCellNodePoss);
 	rawData.isStab = true;
+	*/
 	return rawData;
 }
 
