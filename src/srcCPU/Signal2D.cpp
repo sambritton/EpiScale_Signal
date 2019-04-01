@@ -77,29 +77,29 @@ void Signal::exportGeometryInfo() {
 	//set empty matlab matlab dataArrays
 	
 	auto data_cell_index = factory.createBuffer<unsigned>(numActiveCells);
-	auto data_centroid_pos_x = factory.createBuffer<double>(numActiveCells);
-	auto data_centroid_pos_y = factory.createBuffer<double>(numActiveCells);
+	auto data_cell_pos_x = factory.createBuffer<double>(numActiveCells);
+	auto data_cell_pos_y = factory.createBuffer<double>(numActiveCells);
 
 	auto data_node_index = factory.createBuffer<unsigned>(maxTotalNumActiveNodes);
-	auto data_pos_x = factory.createBuffer<double>(maxTotalNumActiveNodes);
-	auto data_pos_y = factory.createBuffer<double>(maxTotalNumActiveNodes);
+	auto data_node_pos_x = factory.createBuffer<double>(maxTotalNumActiveNodes);
+	auto data_node_pos_y = factory.createBuffer<double>(maxTotalNumActiveNodes);
 
 
 	//set ptrs
-	unsigned* data_cell_centroid_index_ptr = data_cell_index.get();
-	double* data_centroid_pos_x_ptr = data_centroid_pos_x.get();
-	double* data_centroid_pos_x_ptr = data_centroid_pos_x.get();
+	unsigned* data_cell_cell_index_ptr = data_cell_index.get();
+	double* data_cell_pos_x_ptr = data_cell_pos_x.get();
+	double* data_cell_pos_y_ptr = data_cell_pos_y.get();
 
-	unsigned* data_cell_index_ptr = data_node_index.get();
-	double* data_pos_x_ptr = data_pos_x.get();
-	double* data_pos_y_ptr = data_pos_y.get();
+	unsigned* data_node_index_ptr = data_node_index.get();
+	double* data_node_pos_x_ptr = data_node_pos_x.get();
+	double* data_node_pos_y_ptr = data_node_pos_y.get();
 
 	//fill pointers 
 	//WARNING: INCREMENT ID via e+1 
 	for (int k = 0; k < numActiveCells; k++) {
-		*(data_cell_centroid_index_ptr++) = k + 1;
-		*(data_centroid_pos_x_ptr = cellCenterX[k];
-		*(data_centroid_pos_y_ptr = cellCenterY[k];
+		*(data_cell_cell_index_ptr++) = k + 1;
+		*(data_cell_pos_x_ptr++) = cellCenterX[k];
+		*(data_cell_pos_y_ptr++) = cellCenterY[k];
 		//ExportOut << k << "," << cellCenterX[k] << "," << cellCenterY[k] << endl;
 	}
 
@@ -107,38 +107,38 @@ void Signal::exportGeometryInfo() {
 
 		cellRank = i / maxAllNodePerCell;
 		if (nodeIsActiveHost[i] && (i%maxAllNodePerCell) < maxMembrNodePerCell) {
-			*(data_cell_index_ptr++) = cellRank + 1;
-			*(data_pos_x_ptr++) = nodeLocXHost[i];
-			*(data_pos_y_ptr++) = nodeLocYHost[i];
+			*(data_node_index_ptr++) = cellRank + 1;
+			*(data_node_pos_x_ptr++) = nodeLocXHost[i];
+			*(data_node_pos_y_ptr++) = nodeLocYHost[i];
 			//ExportOut << cellRank << "," << nodeLocXHost[i] << "," << nodeLocYHost[i] << endl;
 		}
 	}
 
 	//create arrays from buffers
 	//cells
-	auto arr_data_cell_centroid_index = factory.createArrayFromBuffer<unsigned>(
+	auto arr_data_cell_index = factory.createArrayFromBuffer<unsigned>(
 		{ numActiveCells },
-		std::move(data_cell_centroid_index));
+		std::move(data_cell_index));
 
-	auto arr_data_centroid_pos_x = factory.createArrayFromBuffer<double>(
+	auto arr_data_cell_pos_x = factory.createArrayFromBuffer<double>(
 		{ numActiveCells },
-		std::move(data_centroid_pos_x));
+		std::move(data_cell_pos_x));
 
-	auto arr_data_centroid_pos_y = factory.createArrayFromBuffer<double>(
+	auto arr_data_cell_pos_y = factory.createArrayFromBuffer<double>(
 		{ numActiveCells },
-		std::move(data_centroid_pos_y));
+		std::move(data_cell_pos_y));
 	//nodes
 	auto arr_data_node_index = factory.createArrayFromBuffer<unsigned>(
 		{ maxTotalNumActiveNodes },
 		std::move(data_node_index));
 
-	auto arr_data_pos_x = factory.createArrayFromBuffer<double>(
+	auto arr_data_node_pos_x = factory.createArrayFromBuffer<double>(
 		{ maxTotalNumActiveNodes },
-		std::move(data_pos_x));
+		std::move(data_node_pos_x));
 
-	auto arr_data_pos_y = factory.createArrayFromBuffer<double>(
+	auto arr_data_node_pos_y = factory.createArrayFromBuffer<double>(
 		{ maxTotalNumActiveNodes },
-		std::move(data_pos_y));
+		std::move(data_node_pos_y));
 
 
 	

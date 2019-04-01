@@ -100,7 +100,14 @@ if(NOT WIN32)
                 ${GOOGLETEST_DIR}/libgtest_main.a
         )
 
-						
+	target_link_libraries(${DISK_M_PROJECT_NAME}
+				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libeng.so
+				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so 
+				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmex.so
+				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmat.so
+				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/bin/glnxa64/libMatlabDataArray.so
+				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/bin/glnxa64/libMatlabEngine.so)
+							
 	#	target_link_libraries(${DISK_M_PROJECT_NAME}
 	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libeng.so
 	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so 
