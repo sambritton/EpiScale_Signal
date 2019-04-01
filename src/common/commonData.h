@@ -18,13 +18,6 @@
 #define COMMONDATA_H_
 
 
-
-
-
-
-
-
-
 typedef unsigned int uint;
 typedef std::map<uint, uint> IndexMap;
 
@@ -39,9 +32,7 @@ enum SceExceptionType {
 	InvalidInput,
 	AlgorithmBug
 };
-enum MembraneType1 { lateralB, lateralA, apical1, basal1, notAssigned1 }; //Ali  
-enum ECellType { notActive, pouch, peri, bc };
-enum EType { perip, excm, bc2 };
+
 std::string toString(SceExceptionType type);
 double compuDistHost(double &xPos, double &yPos, double &zPos, double &xPos2,
 	double &yPos2, double &zPos2);
@@ -462,12 +453,8 @@ struct RawDataInput_M {
 	std::vector<CVector> bdryNodes;
 	std::vector<CVector> initCellCenters;
 	std::vector<double> cellGrowProgVec;
-	std::vector<ECellType> cellsTypeCPU; //Ali 
-	std::vector<std::vector<double> > mDppV2; //Ali 
-	std::vector<std::vector<MembraneType1> > mTypeV2; //Ali 
 	std::vector<std::vector<CVector> > initIntnlNodePoss;
 	std::vector<std::vector<CVector> > initMembrNodePoss;
-
 };
 
 /**
@@ -521,9 +508,6 @@ struct SimulationInitData_V2_M {
 	std::vector<SceNodeType> nodeTypes;
 	std::vector<CVector> initNodeVec;
 	std::vector<bool> initIsActive;
-	std::vector<ECellType> eCellTypeV1;  //Ali 
-	std::vector<double> mDppV;  //Ali 
-	std::vector<MembraneType1> mTypeV;  //Ali 
 };
 
 std::vector<double> getArrayXComp(std::vector<CVector> &nodePosVec);
@@ -584,14 +568,10 @@ struct PointAniData {
 	CVector dir;
 	CVector F_MI_M; //AliE
 	double F_MI_M_MagN_Int; //AliE
-	CVector extForce;//AAMIRI
-
 	double dppLevel1;   //Ali
-
+	CVector extForce;//AAMIRI
 	double colorScale;
-	double colorScale2;//AAMIRI //curvature
-	double colorScale3;//Ali  //membrane tension
-	double colorScale4;//Ali //actin 
+	double colorScale2;//AAMIRI
 	int rankScale;//AAMIRI
 };
 
@@ -653,13 +633,10 @@ struct AniRawData {
 	std::vector<CVector> aniNodeExtForceArr;//AAMIRI
 	std::vector<double> aniNodeVal;
 	std::vector<double> aniNodeCurvature;//AAMIRI
-	std::vector<double> aniNodeMembTension;//Ali 
-	std::vector<double> aniNodeActinLevel;//Ali 
 	std::vector<int> aniNodeRank;//AAMIRI
 	std::vector<LinkAniData> memLinks;
 	std::vector<LinkAniData> internalLinks;
 	std::vector<BondInfo> bondsArr;
-
 	std::vector<double> dppLevel; //Ali
 };
 
@@ -670,16 +647,6 @@ struct VecVal {
 		return (val < other.val);
 	}
 };
-
-struct VecValT {
-	CVector vec;
-	double val;
-	MembraneType1  type;
-	bool operator <(const VecValT& other) const {
-		return (val < other.val);
-	}
-};
-
 
 std::vector<CVector> obtainPtsBetween(CVector& pt1, CVector& pt2,
 	double& spacing, uint maxNewMembrNodeCount);
@@ -692,21 +659,15 @@ struct CellStats {
 	double cellCenterX;  //Ali	
 	double membrGrowthProgress;
 	double cellPerim;//AAMIRI
-	double cellArea;
-
 	double cellDpp;//AAMIRI
+	double cellArea;
 	int cellNeighborStrength[10]; //Ali
 	std::set<int> neighborVec;
 	std::vector<int> neighborVecV; //Ali
 	uint currentActiveIntnlNodes;
 	uint currentActiveMembrNodes;
 	CVector cellCenter;
-	CVector cellApicalLoc; //Ali 
-	CVector cellBasalLoc;  //Ali 
-	CVector cellNucleusLoc; //Ali 
-	double  cellPressure;  //Ali 
 	void printToFile(ofstream& ofs);
-
 };
 
 struct CountEntry {
@@ -727,55 +688,12 @@ public:
 	//Ali 
 	double MaxDistanceX; //Ali 
 	std::vector<CellStats> cellsStats;
-
 	void printPolyCountToFile(std::string fileName, double divThreshold);
 	void printDetailStatsToFile(std::string fileNameBase, int timestep);
 	vector<double> outputPolySides();
 	void printStressStrain(std::string FileName1, double curTime, double Init_Displace);   //Ali
 	void printStressStrain_Ini(std::string FileName1); // Ali
 };
-//Ali
-class EnergyCellInfo {
-
-public:
-	double totalMembrLinSpringEnergyCell;
-	double totalMembrBendSpringEnergyCell;
-	double totalNodeIIEnergyCell;
-	double totalNodeIMEnergyCell;
-	double totalNodeEnergyCell;
-	double totalNodeEnergyCellOld;
-
-	EnergyCellInfo() {
-
-		totalNodeEnergyCell = 0;
-		totalNodeEnergyCellOld = 0;
-
-	}
-};
-//Ali
-class EnergyECMInfo {
-
-public:
-	double totalMorseEnergyCellECM;
-	double totalMorseEnergyECMCell;
-	double totalAdhEnergyCellECM;
-	double totalAdhEnergyECMCell;
-	double totalLinSpringEnergyECM;
-	double totalEnergyECM;
-	double totalEnergyPrimeECM;
-	double totalEnergyECMOld;
-
-
-	EnergyECMInfo() {
-
-		totalEnergyECM = 0;
-		totalEnergyECMOld = 0;
-		totalEnergyPrimeECM = 0;
-
-	}
-};
-
-
 
 void insertCount(uint numNeighbor, std::map<uint, uint>& count);
 void printCountsToFile(std::string fileName, std::map<uint, uint>& countNormal,
@@ -787,5 +705,3 @@ void printEntriesToFile(ofstream& fs, std::vector<CountEntry>& countEntries);
 //Ali
 //Ali 
 #endif /* COMMONDATA_H_ */
-
-//Ali 

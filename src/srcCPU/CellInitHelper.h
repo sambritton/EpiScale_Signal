@@ -18,7 +18,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string>
- //#include "MeshGen.h"
+//#include "MeshGen.h"
 
 using namespace std;
 
@@ -29,13 +29,10 @@ using namespace std;
 struct ForReadingData_M2 {
 public:
 	vector <double> TempSX, TempSY, TempSZ;
-	vector <ECellType> eCellTypeV; //Ali 
 	int    CellNumber;
 };
 
 ForReadingData_M2  ReadFile_M2(std::string CellCentersFileName);
-ECellType StringToECellTypeConvertor(const string & eCellTypeString);// Ali 
-MembraneType1 StringToMembraneType1Convertor(const string & mTypeString);// Ali 
 //Ali 
 
 struct SimulationGlobalParameter {
@@ -71,9 +68,7 @@ class CellInitHelper {
 	void generateCellInitNodeInfo_v2(vector<CVector> &initPos);
 	void generateCellInitNodeInfo_v3(vector<CVector>& initCenters,
 		vector<double>& initGrowProg, vector<vector<CVector> >& initBdryPos,
-		vector<vector<CVector> >& initInternalPos,
-		vector<vector<double> >& mDppV2,
-		vector<vector<MembraneType1> >& mTypeV2);
+		vector<vector<CVector> >& initInternalPos);
 	void generateECMInitNodeInfo(vector<CVector> &initECMNodePoss,
 		int initNodeCountPerECM);
 	void generateECMCenters(vector<CVector> &ECMCenters,
@@ -93,7 +88,6 @@ class CellInitHelper {
 	 */
 	vector<CVector> generateInitCellNodes();
 	vector<CVector> generateInitIntnlNodes(CVector& center, double initProg);
-	vector<CVector> generateInitIntnlNodes_M(CVector& center, double initProg, int cellRank); //Ali 
 
 	vector<CVector> generateInitMembrNodes(CVector& center, double initProg);
 

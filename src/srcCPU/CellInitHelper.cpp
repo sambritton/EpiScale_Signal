@@ -4,9 +4,6 @@
 *  Created on: Sep 22, 2013
 *      Author: wsun2
 */
-// To Do List: 
-//1- The ID of cells to which asymmetric nuclear position is assigned, is given manually in generateInitIntnlNodes_M function. It should be updated if the number of cells are changed. It is better to be automatically detected.
-//2-The location of internal nodes is given randomly within certain radius from the cell center. This is modified manually in here. It should become an input paramter.
 #include <fstream>
 #include "CellInitHelper.h"
 //Ali 
@@ -16,7 +13,6 @@ ForReadingData_M2 ReadFile_M2(std::string CellCentersFileName) {
 	std::fstream inputc;
 	ForReadingData_M2  ForReadingData1;
 	double TempPos_X, TempPos_Y, TempPos_Z;
-	string eCellTypeString;
 	//inputc.open("./resources/CellCenters_General.txt");
 	//inputc.open("./resources/CellCenters_General.txt");
 //          inputc.open("./resources/CellCenters2.txt");
@@ -33,45 +29,23 @@ ForReadingData_M2 ReadFile_M2(std::string CellCentersFileName) {
 	inputc >> ForReadingData1.CellNumber;
 	for (int i = 0; i < ForReadingData1.CellNumber; i = i + 1) {
 		cout << "i=" << i << endl;
-		inputc >> TempPos_X >> TempPos_Y >> TempPos_Z >> eCellTypeString;
+		inputc >> TempPos_X >> TempPos_Y >> TempPos_Z;
 		ForReadingData1.TempSX.push_back(TempPos_X);
 		ForReadingData1.TempSY.push_back(TempPos_Y);
 		ForReadingData1.TempSZ.push_back(TempPos_Z);
-		ECellType eCellType = StringToECellTypeConvertor(eCellTypeString);
-		ForReadingData1.eCellTypeV.push_back(eCellType);
 	}
 	cout << "Cell center positions read successfully";
 
-	for (int i = 0; i < ForReadingData1.CellNumber; i = i + 1) {
-		cout << ForReadingData1.eCellTypeV.at(i) << "cell type read" << endl;
-	}
 	return ForReadingData1;
 }
-
-ECellType StringToECellTypeConvertor(const string & eCellTypeString) {
-	if (eCellTypeString == "bc") { return bc; }
-	else if (eCellTypeString == "peri") { return peri; }
-	else if (eCellTypeString == "pouch") { return pouch; }
-	//else { throw std:: invslid_argument ("recevied invalid cell type") ; } 
-
-}
 //Ali 
-
-MembraneType1 StringToMembraneType1Convertor(const string & mTypeString) {
-	if (mTypeString == "lateralA") { return lateralA; }
-	else if (mTypeString == "lateralB") { return lateralB; }
-	else if (mTypeString == "basal1") { return basal1; }
-	else if (mTypeString == "apical1") { return apical1; }
-	//else { throw std:: invslid_argument ("recevied invalid cell type") ; } 
-
-}
 
 
 CellInitHelper::CellInitHelper() {
 	int type = globalConfigVars.getConfigValue("SimulationType").toInt();
 	simuType = parseTypeFromConfig(type);
 	if (simuType == Beak) {
-		//initInternalBdry();  // Beak simulation is not active and I want to remove the dependency of the code on CGAL
+		//initInternalBdry();
 	}
 }
 
@@ -81,82 +55,105 @@ CVector CellInitHelper::getPointGivenAngle(double currentAngle, double r,
 	double yPos = centerPos.y + r * sin(currentAngle);
 	return CVector(xPos, yPos, 0);
 }
-/*Beak simulation is not active and I want to remove the dependency of the code on CGAL
+
+//beak simulation is not active and i want to remove the cgal dependency
+/*
 RawDataInput CellInitHelper::generateRawInputWithProfile(
-		std::vector<CVector> &cellCenterPoss, bool isInnerBdryIncluded) {
+	std::vector<CVector> &cellCenterPoss, bool isInnerBdryIncluded) {
+
 	RawDataInput rawData;
 	vector<CVector> outsideBdryNodePos;
 	vector<CVector> outsideProfileNodePos;
 	std::string bdryInputFileName = globalConfigVars.getConfigValue(
-			"Bdry_InputFileName").toString();
+		"Bdry_InputFileName").toString();
+
 	GEOMETRY::MeshGen meshGen;
+
 	double genBdryRatio =
-			globalConfigVars.getConfigValue("GenBdrySpacingRatio").toDouble();
+		globalConfigVars.getConfigValue("GenBdrySpacingRatio").toDouble();
+
 	GEOMETRY::UnstructMesh2D mesh = meshGen.generateMesh2DWithProfile(
-			bdryInputFileName, genBdryRatio, isInnerBdryIncluded);
+		bdryInputFileName, genBdryRatio, isInnerBdryIncluded);
+
 	std::vector<GEOMETRY::Point2D> bdryPoints = mesh.getFinalBdryPts();
+
 	std::vector<GEOMETRY::Point2D> profilePoints = mesh.getFinalProfilePts();
+
 	for (uint i = 0; i < bdryPoints.size(); i++) {
 		outsideBdryNodePos.push_back(
-				CVector(bdryPoints[i].getX(), bdryPoints[i].getY(), 0));
+			CVector(bdryPoints[i].getX(), bdryPoints[i].getY(), 0));
 	}
+
 	rawData.bdryNodes = outsideBdryNodePos;
+
 	for (uint i = 0; i < profilePoints.size(); i++) {
 		outsideProfileNodePos.push_back(
-				CVector(profilePoints[i].getX(), profilePoints[i].getY(), 0));
+			CVector(profilePoints[i].getX(), profilePoints[i].getY(), 0));
 	}
+
 	rawData.profileNodes = outsideProfileNodePos;
+
 	// calculate average length of profile links
 	double sumLength = 0;
 	for (uint i = 0; i < profilePoints.size() - 1; i++) {
 		CVector tmpVec = outsideProfileNodePos[i]
-				- outsideProfileNodePos[i + 1];
+			- outsideProfileNodePos[i + 1];
 		sumLength += tmpVec.getModul();
 	}
+
 	for (unsigned int i = 0; i < cellCenterPoss.size(); i++) {
 		CVector centerPos = cellCenterPoss[i];
 		centerPos.Print();
 		if (isMXType(centerPos)) {
 			rawData.MXCellCenters.push_back(centerPos);
-		} else {
+		}
+		else {
 			rawData.FNMCellCenters.push_back(centerPos);
 		}
+
 	}
+
 	generateCellInitNodeInfo_v2(rawData.initCellNodePoss);
+
 	return rawData;
 }
 */
-/* DiskMain and laser ablation projects are not active and I want to remove the dependency of the code on CGAL
+
+/*
 RawDataInput CellInitHelper::generateRawInput_simu(
-		std::vector<CVector>& cellCenterPoss) {
+	std::vector<CVector>& cellCenterPoss) {
 	if (simuType == Beak) {
 		RawDataInput baseRawInput = generateRawInputWithProfile(cellCenterPoss,
-				false);
+			false);
+
 		GEOMETRY::MeshGen meshGen;
 		double genBdryRatio = globalConfigVars.getConfigValue(
-				"GenBdrySpacingRatio").toDouble();
+			"GenBdrySpacingRatio").toDouble();
 		std::string bdryInputFileName = globalConfigVars.getConfigValue(
-				"Bdry_InputFileName").toString();
+			"Bdry_InputFileName").toString();
 		GEOMETRY::UnstructMesh2D mesh = meshGen.generateMesh2DWithProfile(
-				bdryInputFileName, genBdryRatio);
+			bdryInputFileName, genBdryRatio);
 		GEOMETRY::MeshInput input = meshGen.obtainMeshInput();
 		baseRawInput.cartilageData = meshGen.obtainCartilageData(mesh, input);
+
 		baseRawInput.isStab = false;
 		baseRawInput.simuType = simuType;
 		return baseRawInput;
-	} else if (simuType == Disc) {
+	}
+	else if (simuType == Disc) {
 		RawDataInput rawInput;
 		initializeRawInput(rawInput, cellCenterPoss);
 		rawInput.isStab = false;
 		rawInput.simuType = simuType;
 		return rawInput;
-	} else {
-		throw SceException(
-				"Simulation Type is not defined when trying to generate raw input",
-				InvalidInput);
 	}
-}
-*/
+	else {
+		throw SceException(
+			"Simulation Type is not defined when trying to generate raw input",
+			InvalidInput);
+	}
+}*/
+
 void CellInitHelper::transformRawCartData(CartilageRawData& cartRawData,
 	CartPara& cartPara, std::vector<CVector>& initNodePos) {
 	// step 1, switch tip node1 to pos 0
@@ -402,10 +399,10 @@ SimulationInitData_V2 CellInitHelper::initInputsV3(RawDataInput& rawData) {
 
 	return initData;
 }
-// This function reformat the the files read from input file to a format suitable to convert to GPU vectors. Initially the files are in the format of Vector <vector <**>>, it will be converted to Vector <> with standard format.
+
 SimulationInitData_V2_M CellInitHelper::initInputsV3_M(
 	RawDataInput_M& rawData_m) {
-	// This function is called Ali 
+
 	if (rawData_m.simuType != Disc_M) {
 		throw SceException("V2_M data can be used for Disc_M simulation only!",
 			ConfigValueException);
@@ -430,27 +427,18 @@ SimulationInitData_V2_M CellInitHelper::initInputsV3_M(
 	initData.simuType = rawData_m.simuType;
 
 	initData.nodeTypes.resize(maxNodeInDomain);
-	initData.mDppV.resize(maxNodeInDomain); // Ali 
-	initData.mTypeV.resize(maxNodeInDomain); // Ali 
 	initData.initNodeVec.resize(initMaxNodeCount);
 	initData.initIsActive.resize(initMaxNodeCount, false);
 	//initData.initGrowProgVec.resize(initCellCount, 0);
-	ECellType eCellTypeTmp2; // Ali
 
 	for (uint i = 0; i < initCellCount; i++) {
 		initData.initActiveMembrNodeCounts.push_back(
-			rawData_m.initMembrNodePoss[i].size()); // the size of this vector will be used to count initial number of active nodes Ali 
+			rawData_m.initMembrNodePoss[i].size());
 		initData.initActiveIntnlNodeCounts.push_back(
 			rawData_m.initIntnlNodePoss[i].size());
 		initData.initGrowProgVec.push_back(rawData_m.cellGrowProgVec[i]);
-		eCellTypeTmp2 = rawData_m.cellsTypeCPU.at(i);  // Ali
-		initData.eCellTypeV1.push_back(eCellTypeTmp2); // Ali
-
 	}
 
-	for (uint i = 0; i < initCellCount; i++) {
-		cout << "third check cell type" << initData.eCellTypeV1.at(i) << endl;  // Ali
-	}
 	for (uint i = 0; i < maxNodeInDomain; i++) {
 		nodeRank = i % maxAllNodeCountPerCell;
 		if (nodeRank < maxMembrNodePerCell) {
@@ -473,13 +461,9 @@ SimulationInitData_V2_M CellInitHelper::initInputsV3_M(
 				initData.initNodeVec[i] =
 					rawData_m.initMembrNodePoss[cellRank][nodeRank];
 				initData.initIsActive[i] = true;
-				initData.mDppV[i] = rawData_m.mDppV2[cellRank][nodeRank];  //Ali
-				initData.mTypeV[i] = rawData_m.mTypeV2[cellRank][nodeRank];  //Ali
 			}
 			else {
 				initData.initIsActive[i] = false;
-				initData.mDppV[i] = 0.0; //Ali
-				initData.mTypeV[i] = notAssigned1; //Ali
 			}
 		}
 		else {
@@ -488,13 +472,9 @@ SimulationInitData_V2_M CellInitHelper::initInputsV3_M(
 				initData.initNodeVec[i] =
 					rawData_m.initIntnlNodePoss[cellRank][intnlIndex];
 				initData.initIsActive[i] = true;
-				initData.mDppV[i] = 0.0; //Ali
-				initData.mTypeV[i] = notAssigned1; //Ali
 			}
 			else {
 				initData.initIsActive[i] = false;
-				initData.mDppV[i] = 0.0; //Ali
-				initData.mTypeV[i] = notAssigned1; //Ali
 			}
 		}
 	}
@@ -524,46 +504,59 @@ vector<CVector> CellInitHelper::rotate2D(vector<CVector> &initECMNodePoss,
 	}
 	return result;
 }
-/* CGAL Deactivation
+/*
 RawDataInput CellInitHelper::generateRawInput_stab() {
 	RawDataInput rawData;
 	rawData.simuType = simuType;
 	vector<CVector> insideCellCenters;
 	vector<CVector> outsideBdryNodePos;
 	std::string bdryInputFileName = globalConfigVars.getConfigValue(
-			"Bdry_InputFileName").toString();
+		"Bdry_InputFileName").toString();
+
 	GEOMETRY::MeshGen meshGen;
+
 	GEOMETRY::UnstructMesh2D mesh = meshGen.generateMesh2DFromFile(
-			bdryInputFileName);
+		bdryInputFileName);
+
 	std::vector<GEOMETRY::Point2D> insideCenterPoints =
-			mesh.getAllInsidePoints();
+		mesh.getAllInsidePoints();
+
 	double fine_Ratio =
-			globalConfigVars.getConfigValue("StabBdrySpacingRatio").toDouble();
+		globalConfigVars.getConfigValue("StabBdrySpacingRatio").toDouble();
+
 	for (uint i = 0; i < insideCenterPoints.size(); i++) {
 		insideCellCenters.push_back(
-				CVector(insideCenterPoints[i].getX(),
-						insideCenterPoints[i].getY(), 0));
+			CVector(insideCenterPoints[i].getX(),
+				insideCenterPoints[i].getY(), 0));
 	}
+
 	mesh = meshGen.generateMesh2DFromFile(bdryInputFileName, fine_Ratio);
+
 	std::vector<GEOMETRY::Point2D> bdryPoints = mesh.getOrderedBdryPts();
+
 	for (uint i = 0; i < bdryPoints.size(); i++) {
 		outsideBdryNodePos.push_back(
-				CVector(bdryPoints[i].getX(), bdryPoints[i].getY(), 0));
+			CVector(bdryPoints[i].getX(), bdryPoints[i].getY(), 0));
 	}
+
 	for (unsigned int i = 0; i < insideCellCenters.size(); i++) {
 		CVector centerPos = insideCellCenters[i];
 		rawData.MXCellCenters.push_back(centerPos);
 		centerPos.Print();
 	}
+
 	for (uint i = 0; i < outsideBdryNodePos.size(); i++) {
 		rawData.bdryNodes.push_back(outsideBdryNodePos[i]);
 	}
+
 	generateCellInitNodeInfo_v2(rawData.initCellNodePoss);
+
 	rawData.isStab = true;
 	return rawData;
 }
 */
-RawDataInput_M CellInitHelper::generateRawInput_M() {   // an Important function in cell inithelper
+
+RawDataInput_M CellInitHelper::generateRawInput_M() {
 	RawDataInput_M rawData;
 
 	rawData.simuType = simuType;
@@ -574,18 +567,18 @@ RawDataInput_M CellInitHelper::generateRawInput_M() {   // an Important function
 
 	std::string CellCentersFileName = globalConfigVars.getConfigValue(
 		"CellCenters_FileName").toString();
-	//Ali
-	//This function read the cells centers coordinates and their type
+	//Ali 
 	ForReadingData_M2 ForReadingData2 = ReadFile_M2(CellCentersFileName);
-
 	GEOMETRY::Point2D Point2D1[ForReadingData2.CellNumber];
-	//not used for now  Ali 
-	//GEOMETRY::MeshGen meshGen;
-	//GEOMETRY::UnstructMesh2D mesh = meshGen.generateMesh2DFromFile(
-	//		bdryInputFileName);
-	////////////////////////
+	//Ali 
 
-		 //Ali
+	//GEOMETRY::MeshGen meshGen;
+
+	//GEOMETRY::UnstructMesh2D mesh = meshGen.generateMesh2DFromFile(
+	//	bdryInputFileName);
+
+
+	//Ali
 	std::vector<GEOMETRY::Point2D> insideCenterCenters;
 	for (int ii = 0; ii < ForReadingData2.CellNumber; ii = ii + 1) {
 
@@ -617,19 +610,13 @@ RawDataInput_M CellInitHelper::generateRawInput_M() {   // an Important function
 	double progDivStart =
 		globalConfigVars.getConfigValue("GrowthPrgrCriVal").toDouble();
 	for (uint i = 0; i < initCellCt; i++) {
-		randNum = (double)rand() / ((double)RAND_MAX + 1) * (progDivStart - 0.25); //Ali here 
-		//randNum = (double) rand() / ((double) RAND_MAX + 1)*0.98   ; //Ali here 
+		randNum = (double)rand() / ((double)RAND_MAX + 1) * progDivStart;
 		//std::cout << "rand init growth progress = " << randNum << std::endl;
 //Ali to make the initial progree of all nodes zero
 
 
-	//	rawData.cellGrowProgVec.push_back(randNum);
-		rawData.cellGrowProgVec.push_back(0.7);
-		ECellType eCellTypeTmp = ForReadingData2.eCellTypeV.at(i);
-		rawData.cellsTypeCPU.push_back(eCellTypeTmp);
-	}
-	for (uint i = 0; i < initCellCt; i++) {
-		cout << "second check for cell type" << rawData.cellsTypeCPU.at(i) << endl;
+		rawData.cellGrowProgVec.push_back(randNum);
+		//rawData.cellGrowProgVec.push_back(0.0);
 	}
 
 	std::cout << "Printing initial cell center positions ......" << std::endl;
@@ -639,10 +626,10 @@ RawDataInput_M CellInitHelper::generateRawInput_M() {   // an Important function
 		std::cout << "    ";
 		centerPos.Print();
 	}
-	// This functions reads membrane nodes coordinates, dpp levels and types, and generates internal nodes coordinates
+
 	generateCellInitNodeInfo_v3(rawData.initCellCenters,
 		rawData.cellGrowProgVec, rawData.initMembrNodePoss,
-		rawData.initIntnlNodePoss, rawData.mDppV2, rawData.mTypeV2);
+		rawData.initIntnlNodePoss);
 
 	//std::cout << "finished generate raw data" << std::endl;
 	//std::cout.flush();
@@ -781,80 +768,20 @@ void CellInitHelper::generateCellInitNodeInfo_v2(vector<CVector>& initPos) {
 	initPos = generateInitCellNodes();
 }
 
-void CellInitHelper::generateCellInitNodeInfo_v3(vector<CVector>& initCenters,   //This function is called Ali 
+void CellInitHelper::generateCellInitNodeInfo_v3(vector<CVector>& initCenters,
 	vector<double>& initGrowProg, vector<vector<CVector> >& initMembrPos,
-	vector<vector<CVector> >& initIntnlPos,
-	vector<vector<double> >& mDppV2,
-	vector<vector<MembraneType1> >& mTypeV2) {
+	vector<vector<CVector> >& initIntnlPos) {
 	assert(initCenters.size() == initGrowProg.size());
 	vector<CVector> initMembrPosTmp;
 	vector<CVector> initIntnlPosTmp;
-	vector<double> mDppVTmp;
-	vector<MembraneType1> mTypeVTmp;
 	for (uint i = 0; i < initCenters.size(); i++) {
-		//	initMembrPosTmp = generateInitMembrNodes(initCenters[i],   // to generate  membrane node positions
-		//			initGrowProg[i]);
-		//	initIntnlPosTmp = generateInitIntnlNodes(initCenters[i],   // to generate internal node positions
-		//			initGrowProg[i]);
-		initIntnlPosTmp = generateInitIntnlNodes_M(initCenters[i],   // to generate internal node positions
-			initGrowProg[i], int(i)); //Ali
-//	initMembrPos.push_back(initMembrPosTmp);
+		initMembrPosTmp = generateInitMembrNodes(initCenters[i],
+			initGrowProg[i]);
+		initIntnlPosTmp = generateInitIntnlNodes(initCenters[i],
+			initGrowProg[i]);
+		initMembrPos.push_back(initMembrPosTmp);
 		initIntnlPos.push_back(initIntnlPosTmp);
 	}
-
-	uint initMembrNodeCount = globalConfigVars.getConfigValue(
-		"InitMembrNodeCount").toInt();
-
-	uint maxMembrNodeCountPerCell = globalConfigVars.getConfigValue(
-		"MaxMembrNodeCountPerCell").toInt();
-	std::fstream inputc;
-	inputc.open("./resources/coordinate_Membrane7.txt");
-	//inputc.open(CellCentersFileName.c_str());
-	if (inputc.is_open()) {
-		cout << "File for reading membrane nodes coordinates opened successfully ";
-	}
-	else {
-		cout << "failed opening membrane nodes coordinates ";
-	}
-
-	int cellIDOld = -1;
-	int cellID;
-	CVector mCoordinate;
-	double mDpp;
-	string mTypeString;
-	MembraneType1 mType;
-	for (int j = 0; j < initCenters.size(); j++) {
-		initMembrPosTmp.clear();
-		mDppVTmp.clear();
-		mTypeVTmp.clear();
-		cellIDOld++;
-		if (j != 0) {
-			initMembrPosTmp.push_back(mCoordinate);
-			mDppVTmp.push_back(mDpp);
-			mTypeVTmp.push_back(mType);
-		}
-		for (int i = 0; i < maxMembrNodeCountPerCell; i++) {
-			inputc >> cellID >> mCoordinate.x >> mCoordinate.y >> mDpp >> mTypeString;
-			mType = StringToMembraneType1Convertor(mTypeString);
-			if (cellID != cellIDOld) {
-				break;// for reading the next cell's membrane coordinates
-			}
-
-			if (inputc.eof()) {
-				break; // to not push backing data when the read file is finished.
-			}
-			initMembrPosTmp.push_back(mCoordinate);
-			mDppVTmp.push_back(mDpp);
-			mTypeVTmp.push_back(mType);
-			cout << "cell ID= " << cellID << "x membrane= " << mCoordinate.x << " y membrane= " << mCoordinate.y << " dpp level=" << mDpp << " type membrane=" << mType << endl;
-		}
-		initMembrPos.push_back(initMembrPosTmp);
-		mDppV2.push_back(mDppVTmp);
-		mTypeV2.push_back(mTypeVTmp);
-	}
-	cout << " I read membrane nodes successfully" << endl;
-
-
 }
 
 double CellInitHelper::getRandomNum(double min, double max) {
@@ -884,7 +811,6 @@ vector<CVector> CellInitHelper::generateInitCellNodes() {
 	return attemptedPoss;
 }
 
-//Active function
 vector<CVector> CellInitHelper::generateInitIntnlNodes(CVector& center,
 	double initProg) {
 	bool isSuccess = false;
@@ -919,64 +845,11 @@ vector<CVector> CellInitHelper::generateInitIntnlNodes(CVector& center,
 	 attemptedPoss[i] = attemptedPoss[i] - tmpSum;
 	 }
 	 */
-
-	 // Input for nuclear pattern
-	double initRadius =
-		globalConfigVars.getConfigValue("InitMembrRadius").toDouble();
-
-	//double	noiseNucleusY=getRandomNum(0.4*initRadius,3.5*initRadius);  
-	double	noiseNucleusY = getRandomNum(-0.2*initRadius, 0.2*initRadius);
-	center.y = center.y + noiseNucleusY;
-
-
 	for (uint i = 0; i < attemptedPoss.size(); i++) {
 		attemptedPoss[i] = attemptedPoss[i] + center;
 	}
 	return attemptedPoss;
 }
-
-vector<CVector> CellInitHelper::generateInitIntnlNodes_M(CVector& center,
-	double initProg, int cellRank) {
-	bool isSuccess = false;
-
-	uint minInitNodeCount =
-		globalConfigVars.getConfigValue("InitCellNodeCount").toInt();
-	uint maxInitNodeCount = globalConfigVars.getConfigValue(
-		"MaxIntnlNodeCountPerCell").toInt();
-	//Ali
-
-	//	uint initIntnlNodeCt = minInitNodeCount ; 
-	//Ali
-	//Ali comment
-	uint initIntnlNodeCt = minInitNodeCount
-		+ (maxInitNodeCount - minInitNodeCount) * initProg;
-
-	vector<CVector> attemptedPoss;
-	while (!isSuccess) {
-		attemptedPoss = tryGenInitCellNodes(initIntnlNodeCt);
-		if (isPosQualify(attemptedPoss)) {
-			isSuccess = true;
-		}
-	}
-	// Input for nuclear pattern
-	double initRadius =
-		globalConfigVars.getConfigValue("InitMembrRadius").toDouble();
-
-	double	noiseNucleusY;
-	if (cellRank > 1 && cellRank < 63)
-		noiseNucleusY = getRandomNum(-0.75*initRadius, 7.25*initRadius);
-	else {
-		noiseNucleusY = getRandomNum(-0.25*initRadius, 0.25*initRadius);
-	}
-	center.y = center.y + noiseNucleusY;
-
-
-	for (uint i = 0; i < attemptedPoss.size(); i++) {
-		attemptedPoss[i] = attemptedPoss[i] + center;
-	}
-	return attemptedPoss;
-}
-
 
 vector<CVector> CellInitHelper::generateInitMembrNodes(CVector& center,
 	double initProg) {
@@ -989,15 +862,13 @@ vector<CVector> CellInitHelper::generateInitMembrNodes(CVector& center,
 	for (uint i = 0; i < initMembrNodeCount; i++) {
 		CVector node;
 		node.x = initRadius * cos(unitAngle * i) + center.x;
-		node.y = initRadius * sin(unitAngle * i) + center.y;  //actual assignment
+		node.y = initRadius * sin(unitAngle * i) + center.y;
 		initMembrNodes.push_back(node);
 	}
 	return initMembrNodes;
 }
 
-//I don't think it is active now
 vector<CVector> CellInitHelper::tryGenInitCellNodes() {
-	// Not active right now 
 	double radius =
 		globalConfigVars.getConfigValue("InitCellRadius").toDouble();
 	//int initCellNodeCount =
@@ -1014,9 +885,9 @@ vector<CVector> CellInitHelper::tryGenInitCellNodes() {
 		cout << "I am in the wrong one" << endl;
 		//Ali
 		while (!isInCircle) {
-			randX = getRandomNum(-0.2*radius, 0.2*radius);
-			randY = getRandomNum(-0.2*radius, 0.2*radius);
-			isInCircle = (sqrt(randX * randX + randY * randY) < 0.2*radius);
+			randX = getRandomNum(-radius, radius);
+			randY = getRandomNum(-radius, radius);
+			isInCircle = (sqrt(randX * randX + randY * randY) < radius);
 		}
 		poss.push_back(CVector(randX, randY, 0));
 		foundCount++;
@@ -1024,7 +895,6 @@ vector<CVector> CellInitHelper::tryGenInitCellNodes() {
 	return poss;
 }
 
-//It is active
 vector<CVector> CellInitHelper::tryGenInitCellNodes(uint initNodeCt) {
 	double radius =
 		globalConfigVars.getConfigValue("InitCellRadius").toDouble();
@@ -1033,14 +903,14 @@ vector<CVector> CellInitHelper::tryGenInitCellNodes(uint initNodeCt) {
 	double randX, randY;
 
 	//Ali
- //   cout << "I am in the right one" << endl ; 
-  //  cout << "# of internal Nodes" << initNodeCt <<endl ; 
+	cout << "I am in the right one" << endl;
+	cout << "# of internal Nodes" << initNodeCt << endl;
 	//Ali
 	while (foundCount < initNodeCt) {
 		bool isInCircle = false;
 		//while (!isInCircle) {
-		randX = getRandomNum(-0.3*radius, 0.3*radius);
-		randY = getRandomNum(-0.3*radius, 0.3*radius);
+		randX = getRandomNum(-radius, radius);
+		randY = getRandomNum(-radius, radius);
 		isInCircle = (sqrt(randX * randX + randY * randY) < radius);
 		//	}
 					//Ali
@@ -1048,8 +918,8 @@ vector<CVector> CellInitHelper::tryGenInitCellNodes(uint initNodeCt) {
 			//Ali
 			poss.push_back(CVector(randX, randY, 0));
 			foundCount++;
-			//      cout << "#internal nodes location" << foundCount<<"isInCircle"<<isInCircle <<endl ; 
-				  //Ali
+			cout << "#internal nodes location" << foundCount << "isInCircle" << isInCircle << endl;
+			//Ali
 		}
 		//Ali 
 	}
@@ -1098,14 +968,14 @@ bool CellInitHelper::isMXType(CVector position) {
 	return true;
 }
 
-/* beak simulation is not active and I want to remove dependency of the code on CGAL
+/*
 void CellInitHelper::initInternalBdry() {
 	GEOMETRY::MeshGen meshGen;
 	GEOMETRY::MeshInput input = meshGen.obtainMeshInput();
 	internalBdryPts = input.internalBdryPts;
 }
 */
-/* This function is used for DiskMain project which is not active and I want to remove the dependency of the code on CGAL
+/*
 SimulationInitData_V2 CellInitHelper::initStabInput() {
 	RawDataInput rawInput = generateRawInput_stab();
 	SimulationInitData_V2 initData = initInputsV3(rawInput);
@@ -1114,21 +984,22 @@ SimulationInitData_V2 CellInitHelper::initStabInput() {
 }
 */
 //RawDataInput rawInput = generateRawInput_stab();
-SimulationInitData_V2_M CellInitHelper::initInput_M() {   //Ali: This function is called by the main function of the code which is discMain_M.cpp
-	RawDataInput_M rawInput_m = generateRawInput_M();     //Ali: This function includes reading cell centers and membrane nodes locations
-	SimulationInitData_V2_M initData = initInputsV3_M(rawInput_m); // This function reformat the files read in the input to be easily movable to GPU
+SimulationInitData_V2_M CellInitHelper::initInput_M() {
+	RawDataInput_M rawInput_m = generateRawInput_M();
+	SimulationInitData_V2_M initData = initInputsV3_M(rawInput_m);
 	initData.isStab = false;
 	return initData;
 }
-/* this function is needed for laserAblation and discMain. cpp which none of them are acitve and I want to remove dependency on CGAL
+
+/*
 SimulationInitData_V2 CellInitHelper::initSimuInput(
-		std::vector<CVector> &cellCenterPoss) {
-	RawDataInput rawInput = generateRawInput_simu(cellCenterPoss);  //This function call MeshGen which is heavily using CGAL
+	std::vector<CVector> &cellCenterPoss) {
+	RawDataInput rawInput = generateRawInput_simu(cellCenterPoss);
 	SimulationInitData_V2 simuInitData = initInputsV3(rawInput);
 	simuInitData.isStab = false;
 	return simuInitData;
-}
-*/
+}*/
+
 void SimulationGlobalParameter::initFromConfig() {
 	int type = globalConfigVars.getConfigValue("SimulationType").toInt();
 	SimulationType simuType = parseTypeFromConfig(type);
@@ -1181,30 +1052,34 @@ void SimulationGlobalParameter::initFromConfig() {
 	}
 
 }
-/* CGAL DEACTIVATION
+
+/*
 RawDataInput CellInitHelper::generateRawInput_singleCell() {
 	RawDataInput rawData;
 	rawData.simuType = simuType;
+
 	std::string initPosFileName = globalConfigVars.getConfigValue(
-			"SingleCellCenterPos").toString();
+		"SingleCellCenterPos").toString();
+
 	fstream fs(initPosFileName.c_str());
 	vector<CVector> insideCellCenters = GEOMETRY::MeshInputReader::readPointVec(
-			fs);
+		fs);
 	fs.close();
+
 	for (unsigned int i = 0; i < insideCellCenters.size(); i++) {
 		CVector centerPos = insideCellCenters[i];
 		rawData.MXCellCenters.push_back(centerPos);
 	}
+
 	generateCellInitNodeInfo_v2(rawData.initCellNodePoss);
 	rawData.isStab = true;
 	return rawData;
-}
-*/
-/* CGAL deactivation
+}*/
+
+/*
 SimulationInitData_V2 CellInitHelper::initSingleCellTest() {
 	RawDataInput rawInput = generateRawInput_singleCell();
 	SimulationInitData_V2 initData = initInputsV3(rawInput);
 	initData.isStab = true;
 	return initData;
-}
-*/
+}*/
