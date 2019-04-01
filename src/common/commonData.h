@@ -35,7 +35,7 @@ enum SceExceptionType {
 
 std::string toString(SceExceptionType type);
 double compuDistHost(double &xPos, double &yPos, double &zPos, double &xPos2,
-		double &yPos2, double &zPos2);
+	double &yPos2, double &zPos2);
 
 enum SceNodeType {
 	Boundary, Profile, ECM, FNM, MX, Cart, Base, CellIntnl, CellMembr
@@ -54,23 +54,23 @@ enum SwitchState {
 	ON, OFF
 };
 
-class SceException: public std::exception {
+class SceException : public std::exception {
 private:
 	std::string _message;
 	SceExceptionType _exceptionType;
 	std::string _msg_combine;
 public:
 	SceException(const std::string& message) :
-			_message(message), _exceptionType(BaseException) {
+		_message(message), _exceptionType(BaseException) {
 	}
 	SceException(const std::string& message, const SceExceptionType type) :
-			_message(message), _exceptionType(type) {
+		_message(message), _exceptionType(type) {
 	}
 	~SceException() throw () {
 	}
 	virtual const char* what() const throw () {
 		std::string _msg_combine = _message + ", "
-				+ std::string(", Exception type: " + toString(_exceptionType));
+			+ std::string(", Exception type: " + toString(_exceptionType));
 		return _msg_combine.c_str();
 	}
 };
@@ -144,7 +144,7 @@ struct SceMechPara {
  */
 struct SceMechPara_M {
 	double sceInterBParaCPU_M[5];
-        int    sceInterBParaCPU_Jones_On_M  ; //Ali
+	int    sceInterBParaCPU_Jones_On_M; //Ali
 	double sceInterBParaCPU_Jones_M[3]; //Ali
 
 	double sceIntnlBParaCPU_M[5];
@@ -550,8 +550,8 @@ struct AnimationCriteria {
 	double arrowLength;
 	// determines if a potential pair is qualified for animation.
 	bool isPairQualify(uint seq1, uint seq2, double x1, double y1, double z1,
-			SceNodeType t1, uint r1, double x2, double y2, double z2,
-			SceNodeType t2, uint r2);
+		SceNodeType t1, uint r1, double x2, double y2, double z2,
+		SceNodeType t2, uint r2);
 
 	bool isPairQualify_M(double x1, double y1, double x2, double y2);
 
@@ -568,7 +568,7 @@ struct PointAniData {
 	CVector dir;
 	CVector F_MI_M; //AliE
 	double F_MI_M_MagN_Int; //AliE
-        double dppLevel1;   //Ali
+	double dppLevel1;   //Ali
 	CVector extForce;//AAMIRI
 	double colorScale;
 	double colorScale2;//AAMIRI
@@ -600,7 +600,7 @@ void printMatrixToFile(vector<vector<T> >& matrix, std::string &fileName) {
 		throw SceException("unable to open file for writing", FileIOException);
 	}
 	std::cout << "Now printing matrix to file " << fileName.c_str()
-			<< std::endl;
+		<< std::endl;
 	for (uint i = 0; i < matrix.size(); i++) {
 		for (uint j = 0; j < matrix[i].size(); j++) {
 			ofs << matrix[i][j] << " ";
@@ -649,20 +649,20 @@ struct VecVal {
 };
 
 std::vector<CVector> obtainPtsBetween(CVector& pt1, CVector& pt2,
-		double& spacing, uint maxNewMembrNodeCount);
+	double& spacing, uint maxNewMembrNodeCount);
 
 struct CellStats {
 	uint cellRank;
 	double cellGrowthProgress;
 	bool isBdryCell;
 	uint numNeighbors;
-        double cellCenterX ;  //Ali	
-        double membrGrowthProgress;
-        double cellPerim;//AAMIRI
-        double cellDpp;//AAMIRI
+	double cellCenterX;  //Ali	
+	double membrGrowthProgress;
+	double cellPerim;//AAMIRI
+	double cellDpp;//AAMIRI
 	double cellArea;
-        int cellNeighborStrength[10]; //Ali
-	std::set<int> neighborVec; 
+	int cellNeighborStrength[10]; //Ali
+	std::set<int> neighborVec;
 	std::vector<int> neighborVecV; //Ali
 	uint currentActiveIntnlNodes;
 	uint currentActiveMembrNodes;
@@ -682,22 +682,22 @@ class CellsStatsData {
 
 
 public:
-        //Ali
-        double Cells_Extrem_Loc[4] ;
-        double F_Ext_Out ; //Ali  
-        //Ali 
-        double MaxDistanceX ; //Ali 
+	//Ali
+	double Cells_Extrem_Loc[4];
+	double F_Ext_Out; //Ali  
+	//Ali 
+	double MaxDistanceX; //Ali 
 	std::vector<CellStats> cellsStats;
 	void printPolyCountToFile(std::string fileName, double divThreshold);
 	void printDetailStatsToFile(std::string fileNameBase, int timestep);
 	vector<double> outputPolySides();
-        void printStressStrain(std::string FileName1,double curTime,double Init_Displace );   //Ali
-        void printStressStrain_Ini(std::string FileName1); // Ali
+	void printStressStrain(std::string FileName1, double curTime, double Init_Displace);   //Ali
+	void printStressStrain_Ini(std::string FileName1); // Ali
 };
 
 void insertCount(uint numNeighbor, std::map<uint, uint>& count);
 void printCountsToFile(std::string fileName, std::map<uint, uint>& countNormal,
-		std::map<uint, uint>& countDiv, std::map<uint, uint>& countBdry);
+	std::map<uint, uint>& countDiv, std::map<uint, uint>& countBdry);
 
 std::vector<CountEntry> processCountMap(std::map<uint, uint>& countMap);
 

@@ -11,7 +11,7 @@
 #include <tr1/functional>
 #include <list>
 #include "commonData.h"
-
+/**/
 struct HandleHashFunc {
 	std::size_t operator()(const CDT::Vertex_handle& vHandle) const {
 		double xCoord = vHandle->point().x();
@@ -96,8 +96,8 @@ UnstructMesh2D MeshGen::generateMeshGivenInput(MeshInput input) {
 		seedList.push_back(Point(input.seeds[i].GetX(), input.seeds[i].GetY()));
 	}
 
-	CGAL::refine_Delaunay_mesh_2(cdt, seedList.begin(), seedList.end(),
-			criteria);
+	//CGAL::refine_Delaunay_mesh_2(cdt, seedList.begin(), seedList.end(),
+	//		criteria);
 
 	VertexHashMap vertexHandleToIndex;
 	EdgeHashSet edgeSet;

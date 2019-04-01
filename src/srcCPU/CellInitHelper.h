@@ -13,23 +13,24 @@
 #include <cmath>
 #include "commonData.h"
 #include "ConfigParser.h"
+#include "Point2D.h"
 #include <assert.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string>
-#include "MeshGen.h"
+//#include "MeshGen.h"
 
 using namespace std;
 
 /**
  * Parameter the controls the simualtion.
  */
-//Ali
+ //Ali
 struct ForReadingData_M2 {
-      public: 
-      vector <double> TempSX,TempSY,TempSZ; 
-       int    CellNumber ; 
-}; 
+public:
+	vector <double> TempSX, TempSY, TempSZ;
+	int    CellNumber;
+};
 
 ForReadingData_M2  ReadFile_M2(std::string CellCentersFileName);
 //Ali 
@@ -37,10 +38,10 @@ ForReadingData_M2  ReadFile_M2(std::string CellCentersFileName);
 struct SimulationGlobalParameter {
 public:
 	std::string animationNameBase;
-        double InitTimeStage ; 
+	double InitTimeStage;
 	double totalSimuTime;
 	double dt;
-        double Damp_Coef ; 
+	double Damp_Coef;
 	int totalTimeSteps;
 	int totalFrameCount;
 	int aniAuxVar;
@@ -60,18 +61,18 @@ class CellInitHelper {
 	vector<CVector> internalBdryPts;
 
 	CVector getPointGivenAngle(double currentAngle, double r,
-			CVector centerPos);
+		CVector centerPos);
 	void generateRandomAngles(vector<double> &randomAngles,
-			int initProfileNodeSize);
+		int initProfileNodeSize);
 
 	void generateCellInitNodeInfo_v2(vector<CVector> &initPos);
 	void generateCellInitNodeInfo_v3(vector<CVector>& initCenters,
-			vector<double>& initGrowProg, vector<vector<CVector> >& initBdryPos,
-			vector<vector<CVector> >& initInternalPos);
+		vector<double>& initGrowProg, vector<vector<CVector> >& initBdryPos,
+		vector<vector<CVector> >& initInternalPos);
 	void generateECMInitNodeInfo(vector<CVector> &initECMNodePoss,
-			int initNodeCountPerECM);
+		int initNodeCountPerECM);
 	void generateECMCenters(vector<CVector> &ECMCenters,
-			vector<CVector> &CellCenters, vector<CVector> &bdryNodes);
+		vector<CVector> &CellCenters, vector<CVector> &bdryNodes);
 
 	bool anyECMCenterTooClose(vector<CVector> &ecmCenters, CVector position);
 	bool anyCellCenterTooClose(vector<CVector> &cellCenters, CVector position);
@@ -110,13 +111,13 @@ class CellInitHelper {
 	 * Initialize raw input given an array of cell center positions.
 	 */
 	void initializeRawInput(RawDataInput &rawInput,
-			std::vector<CVector> &cellCenterPoss);
+		std::vector<CVector> &cellCenterPoss);
 
 	/**
 	 * generate initial node positions given cartilage raw data.
 	 */
 	void transformRawCartData(CartilageRawData &cartRawData, CartPara &cartPara,
-			std::vector<CVector> &initNodePos);
+		std::vector<CVector> &initNodePos);
 
 	/**
 	 * Given a cell center position, decide if the center position is MX type or not.
@@ -131,8 +132,8 @@ class CellInitHelper {
 	 * epithelium node positions and boundary node positions.
 	 */
 	RawDataInput generateRawInputWithProfile(
-			std::vector<CVector> &cellCenterPoss, bool isInnerBdryIncluded =
-					true);
+		std::vector<CVector> &cellCenterPoss, bool isInnerBdryIncluded =
+		true);
 
 	/**
 	 * generate simulation initialization data _v2 given raw data.

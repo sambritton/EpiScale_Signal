@@ -1,41 +1,17 @@
 #ifndef SCENODES_H_
 #define SCENODES_H_
 
-#include <thrust/device_vector.h>
-#include <thrust/host_vector.h>
-#include <thrust/reduce.h>
-#include <thrust/copy.h>
-#include <thrust/sort.h>
-#include <thrust/iterator/zip_iterator.h>
-#include <thrust/iterator/counting_iterator.h>
-#include <thrust/iterator/constant_iterator.h>
-#include <thrust/tabulate.h>
-#include <thrust/binary_search.h>
-#include <thrust/tuple.h>
-#include <thrust/random.h>
-#include <thrust/equal.h>
-#include <thrust/inner_product.h>
-#include <thrust/transform_reduce.h>
-
-#include <thrust/gather.h>
-#include <thrust/scan.h>
-#include <thrust/fill.h>
-#include <thrust/count.h>
-#include <thrust/unique.h>
-#include <thrust/extrema.h>
-
-#include <thrust/for_each.h>
-#include <cuda_runtime.h>
+#include "Structures_Misc.h"
 #include "ConfigParser.h"
 #include <assert.h>
 #include "commonData.h"
 #include "ResAnalysisHelper.h"
 
-#include <ctime>
-
 // include google test files in order to test private functions.
 #include "gtest/gtest_prod.h"
-#include "SceNodes.h"
+
+
+
 
 // I wish I could include some c++ 11 data structure here but it seems
 // Thrust is not compatible with c++ 11.
@@ -129,7 +105,7 @@ struct isTrue {
 		}
 	}
 };
-
+/* 
 struct NanCount: public thrust::binary_function<double, double, CVec3> {
 	__device__
 	int operator()(const double& num) {
@@ -140,7 +116,7 @@ struct NanCount: public thrust::binary_function<double, double, CVec3> {
 		}
 	}
 };
-
+*/
 /**
  * Functor predicate see if a boolean varible is true(seems unnecessary but still required).
  */
