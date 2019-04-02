@@ -1452,7 +1452,7 @@ void SceCells::exchSignal(){
 	cout << "last time exchange is " << lastTimeExchange << endl ; 
 	cout << "dt is " << dt << endl ;  
    	double exchPeriod=360 ; 
-	//if ( lastTimeExchange>exchPeriod) {
+	if ( lastTimeExchange>exchPeriod) {
 		lastTimeExchange=0 ; 
 		//vector<CVector> cellCentersHost ; 
     	//cellCentersHost=getAllCellCenters();  //Ali
@@ -1460,9 +1460,9 @@ void SceCells::exchSignal(){
 
 		thrust::device_vector<double>::iterator  MinX_Itr=thrust::min_element(cellInfoVecs.centerCoordX.begin(),
                                        									  cellInfoVecs.centerCoordX.begin()+allocPara_m.currentActiveCellCount) ;
-    	thrust::device_vector<double>::iterator  MaxX_Itr=thrust::max_element(cellInfoVecs.centerCoordX.begin(),
+    		thrust::device_vector<double>::iterator  MaxX_Itr=thrust::max_element(cellInfoVecs.centerCoordX.begin(),
                                                                               cellInfoVecs.centerCoordX.begin()+ allocPara_m.currentActiveCellCount) ;
-    	thrust::device_vector<double>::iterator  MinY_Itr=thrust::min_element(cellInfoVecs.centerCoordY.begin(),
+    		thrust::device_vector<double>::iterator  MinY_Itr=thrust::min_element(cellInfoVecs.centerCoordY.begin(),
                                                                               cellInfoVecs.centerCoordY.begin()+ allocPara_m.currentActiveCellCount) ;
    		thrust::device_vector<double>::iterator  MaxY_Itr=thrust::max_element(cellInfoVecs.centerCoordY.begin(),
                                                                               cellInfoVecs.centerCoordY.begin()+ allocPara_m.currentActiveCellCount) ;
@@ -1483,18 +1483,19 @@ void SceCells::exchSignal(){
 		thrust:: copy (cellInfoVecs.centerCoordX.begin(),cellInfoVecs.centerCoordX.begin()+allocPara_m.currentActiveCellCount, signal.cellCenterX.begin()); 
 		thrust:: copy (cellInfoVecs.centerCoordY.begin(),cellInfoVecs.centerCoordY.begin()+allocPara_m.currentActiveCellCount, signal.cellCenterY.begin()); 
 		
-        signal.updateSignal(Tisu_MinX,Tisu_MaxX,Tisu_MinY,Tisu_MaxY,curTime,totalNodeCountForActiveCells,allocPara_m.currentActiveCellCount) ; //Ali
-        assert(cellInfoVecs.cell_Dpp.size()==signal.dppLevel.size());
-        thrust::copy(signal.dppLevel.begin(),signal.dppLevel.end(),cellInfoVecs.cell_Dpp.begin()) ;
+        	signal.updateSignal(Tisu_MinX,Tisu_MaxX,Tisu_MinY,Tisu_MaxY,curTime,totalNodeCountForActiveCells,allocPara_m.currentActiveCellCount) ; //Ali
+        	assert(cellInfoVecs.cell_Dpp.size()==signal.dppLevel.size());
+        	thrust::copy(signal.dppLevel.begin(),signal.dppLevel.end(),cellInfoVecs.cell_Dpp.begin()) ;
 		//currentActiveCellCountOld=allocPara_m.currentActiveCellCount;
  
-	//}
+	}
 	if (firstTimeReadDpp) {	 
-	   thrust::copy(signal.dppLevel.begin(),signal.dppLevel.end(),cellInfoVecs.cell_DppOld.begin()) ;
+	   	thrust::copy(signal.dppLevel.begin(),signal.dppLevel.end(),cellInfoVecs.cell_DppOld.begin()) ;
 		firstTimeReadDpp=false ; 
 	}
 
 }
+
 void SceCells::runStretchTest(double dt) {
 	this->dt = dt;
 	computeCenterPos();

@@ -66,6 +66,13 @@ void Signal::updateSignal(double minX, double maxX, double minY, double maxY, do
 void Signal::exportGeometryInfo() {
  	double Center_X=minX+0.5*(maxX-minX); 
  	int cellRank ; 
+	int totalNumActiveMembraneNodes=0 ; 
+	for (uint i = 0; i < maxTotalNumActiveNodes; i++) {
+		cellRank = i / maxAllNodePerCell;
+		if (nodeIsActiveHost[i] && (i%maxAllNodePerCell) < maxMembrNodePerCell) {
+			totalNumActiveMembraneNodes++ ; 
+		}
+	}
 
 	std::unique_ptr<matlab::engine::MATLABEngine> matlabPtr = matlab::engine::startMATLAB();
 
@@ -80,9 +87,9 @@ void Signal::exportGeometryInfo() {
 	auto data_cell_pos_x = factory.createBuffer<double>(numActiveCells);
 	auto data_cell_pos_y = factory.createBuffer<double>(numActiveCells);
 
-	auto data_node_index = factory.createBuffer<unsigned>(maxTotalNumActiveNodes);
-	auto data_node_pos_x = factory.createBuffer<double>(maxTotalNumActiveNodes);
-	auto data_node_pos_y = factory.createBuffer<double>(maxTotalNumActiveNodes);
+	auto data_node_index = factory.createBuffer<unsigned>(totalNumActiveMembraneNodes);
+	auto data_node_pos_x = factory.createBuffer<double>(totalNumActiveMembraneNodes);
+	auto data_node_pos_y = factory.createBuffer<double>(totalNumActiveMembraneNodes);
 
 
 	//set ptrs
@@ -129,15 +136,15 @@ void Signal::exportGeometryInfo() {
 		std::move(data_cell_pos_y));
 	//nodes
 	auto arr_data_node_index = factory.createArrayFromBuffer<unsigned>(
-		{ maxTotalNumActiveNodes },
+		{ totalNumActiveMembraneNodes },
 		std::move(data_node_index));
 
 	auto arr_data_node_pos_x = factory.createArrayFromBuffer<double>(
-		{ maxTotalNumActiveNodes },
+		{ totalNumActiveMembraneNodes },
 		std::move(data_node_pos_x));
 
 	auto arr_data_node_pos_y = factory.createArrayFromBuffer<double>(
-		{ maxTotalNumActiveNodes },
+		{ totalNumActiveMembraneNodes },
 		std::move(data_node_pos_y));
 
 
@@ -156,7 +163,10 @@ void Signal::exportGeometryInfo() {
 
 		dppLevelV.push_back(current_dpp_level);
 	}
+	for ( int i =0 ; i< dppLevelV.size() ; i++) {
 
+		cout << "dpp level for node " << i << " is equal to " << dppLevelV.at(i) << endl ; 
+	} 
 	//main_signaling is the matlab funct ionto compute chemical signal for each cell. 
 	//input should be: 
 	//vector of cell index, node x,y positions
