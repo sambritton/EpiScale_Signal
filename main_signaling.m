@@ -20,7 +20,7 @@ total_cell = max(double(arr_data_cell_index))+1;%index in c code has + 1 %max(ep
 %cell_nodes = [cell_nodes(:,2:3), cell_nodes(:,1)];
 
 cell_nodes = [arr_data_node_pos_x, arr_data_node_pos_y,double(arr_data_node_index)];%[node_pos_x, node_pos_y];
-
+centroid_nodes = [arr_data_cell_pos_x, arr_data_cell_pos_y];
 
 for i = 1:total_cell
     eval(['centroid_' num2str(i-1) '=[arr_data_cell_pos_x(i),arr_data_cell_pos_y(i)];']);
@@ -446,7 +446,7 @@ for i = 0:total_cell-1
                     if isempty(junction_1234)
                         [v12,v23,v34,v41] = find_inner_quad(e12,e23,e34,e41);
                         centroid1234 = (v12+v23+v34+v41)/4;
-                        if min(pdist2(centroid1234,epi_nodes(1:total_cell,2:3)))>1
+                        if min(pdist2(centroid1234,centroid_nodes))>1
                             eval(['vt_' num2str(c1) ' = [vt_' num2str(c1) '; centroid1234];']);
                             eval(['vt_' num2str(c2) ' = [vt_' num2str(c2) '; centroid1234];']);
                             eval(['vt_' num2str(c3) ' = [vt_' num2str(c3) '; centroid1234];']);
