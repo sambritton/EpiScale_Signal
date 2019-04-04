@@ -1452,7 +1452,7 @@ void SceCells::exchSignal(){
 	cout << "last time exchange is " << lastTimeExchange << endl ; 
 	cout << "dt is " << dt << endl ;  
    	double exchPeriod=360 ; 
-	//if ( lastTimeExchange>exchPeriod) {
+	if ( lastTimeExchange>exchPeriod) {
 		lastTimeExchange=0 ; 
 		//vector<CVector> cellCentersHost ; 
     	//cellCentersHost=getAllCellCenters();  //Ali
@@ -1488,7 +1488,7 @@ void SceCells::exchSignal(){
         thrust::copy(signal.dppLevel.begin(),signal.dppLevel.end(),cellInfoVecs.cell_Dpp.begin()) ;
 		//currentActiveCellCountOld=allocPara_m.currentActiveCellCount;
  
-	//}
+	}
 	if (firstTimeReadDpp) {	 
 	   thrust::copy(signal.dppLevel.begin(),signal.dppLevel.end(),cellInfoVecs.cell_DppOld.begin()) ;
 		firstTimeReadDpp=false ; 
