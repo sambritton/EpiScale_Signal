@@ -5,6 +5,12 @@
 #include <time.h>  
 #include <stdlib.h>
 #include <stdio.h>
+//#include "engine.h"
+
+//#include "matlab_engine.hpp"
+//#include "engine_factory.hpp"
+#include "MatlabDataArray.hpp"
+#include "MatlabEngine.hpp"
 
 namespace patch
 {
@@ -48,8 +54,11 @@ void Signal::updateSignal(double minX, double maxX, double minY, double maxY, do
 	this->maxTotalNumActiveNodes=maxTotalNumActiveNodes ; 
 	this->numActiveCells=numActiveCells ; 
 	cout << "I am in update signal started" << std::endl ; 
+	
+	//calls matlab and  all dpp info from matlab
 	exportGeometryInfo()	; 
-	importSignalInfoCellLevel()	; 
+	
+	//importSignalInfoCellLevel()	; 
 	processSignalInfoCellLevel()	; 
 
 }
@@ -57,8 +66,122 @@ void Signal::updateSignal(double minX, double maxX, double minY, double maxY, do
 void Signal::exportGeometryInfo() {
  	double Center_X=minX+0.5*(maxX-minX); 
  	int cellRank ; 
+	int totalNumActiveMembraneNodes=0 ; 
+	for (uint i = 0; i < maxTotalNumActiveNodes; i++) {
+		cellRank = i / maxAllNodePerCell;
+		if (nodeIsActiveHost[i] && (i%maxAllNodePerCell) < maxMembrNodePerCell) {
+			totalNumActiveMembraneNodes++ ; 
+		}
+	}
+
+	std::unique_ptr<matlab::engine::MATLABEngine> matlabPtr = matlab::engine::startMATLAB();
+
+	using namespace matlab::engine;
+
+	//Create MATLAB data array factory 
+	matlab::data::ArrayFactory factory;
+
+	//set empty matlab matlab dataArrays
+	
+	auto data_cell_index = factory.createBuffer<unsigned>(numActiveCells);
+	auto data_cell_pos_x = factory.createBuffer<double>(numActiveCells);
+	auto data_cell_pos_y = factory.createBuffer<double>(numActiveCells);
+
+	auto data_node_index = factory.createBuffer<unsigned>(totalNumActiveMembraneNodes);
+	auto data_node_pos_x = factory.createBuffer<double>(totalNumActiveMembraneNodes);
+	auto data_node_pos_y = factory.createBuffer<double>(totalNumActiveMembraneNodes);
 
 
+	//set ptrs
+	unsigned* data_cell_cell_index_ptr = data_cell_index.get();
+	double* data_cell_pos_x_ptr = data_cell_pos_x.get();
+	double* data_cell_pos_y_ptr = data_cell_pos_y.get();
+
+	unsigned* data_node_index_ptr = data_node_index.get();
+	double* data_node_pos_x_ptr = data_node_pos_x.get();
+	double* data_node_pos_y_ptr = data_node_pos_y.get();
+
+	//fill pointers 
+	//WARNING: INCREMENT ID via e+1 
+	for (int k = 0; k < numActiveCells; k++) {
+		*(data_cell_cell_index_ptr++) = k + 1;
+		*(data_cell_pos_x_ptr++) = cellCenterX[k];
+		*(data_cell_pos_y_ptr++) = cellCenterY[k];
+		//ExportOut << k << "," << cellCenterX[k] << "," << cellCenterY[k] << endl;
+	}
+
+	for (uint i = 0; i < maxTotalNumActiveNodes; i++) {
+
+		cellRank = i / maxAllNodePerCell;
+		if (nodeIsActiveHost[i] && (i%maxAllNodePerCell) < maxMembrNodePerCell) {
+			*(data_node_index_ptr++) = cellRank + 1;
+			*(data_node_pos_x_ptr++) = nodeLocXHost[i];
+			*(data_node_pos_y_ptr++) = nodeLocYHost[i];
+			//ExportOut << cellRank << "," << nodeLocXHost[i] << "," << nodeLocYHost[i] << endl;
+		}
+	}
+
+	//create arrays from buffers
+	//cells
+	auto arr_data_cell_index = factory.createArrayFromBuffer<unsigned>(
+		{ numActiveCells },
+		std::move(data_cell_index));
+
+	auto arr_data_cell_pos_x = factory.createArrayFromBuffer<double>(
+		{ numActiveCells },
+		std::move(data_cell_pos_x));
+
+	auto arr_data_cell_pos_y = factory.createArrayFromBuffer<double>(
+		{ numActiveCells },
+		std::move(data_cell_pos_y));
+	//nodes
+	auto arr_data_node_index = factory.createArrayFromBuffer<unsigned>(
+		{ totalNumActiveMembraneNodes },
+		std::move(data_node_index));
+
+	auto arr_data_node_pos_x = factory.createArrayFromBuffer<double>(
+		{ totalNumActiveMembraneNodes },
+		std::move(data_node_pos_x));
+
+	auto arr_data_node_pos_y = factory.createArrayFromBuffer<double>(
+		{ totalNumActiveMembraneNodes },
+		std::move(data_node_pos_y));
+
+
+
+	matlab::data::TypedArray<double> dpp_cell_output = matlabPtr->
+		feval(convertUTF8StringToUTF16String("main_signaling"), {
+			arr_data_cell_index, arr_data_cell_pos_x, arr_data_cell_pos_y,
+			arr_data_node_index, arr_data_node_pos_x, arr_data_node_pos_y }); 
+
+
+	//NOT SURE IF THIS VECTOR IS CORRECT
+	dppLevelV.clear();
+	//WARNING: CHECK IF INDEXING IS CORRECT IN OUTPUT
+	for (unsigned i = 0; i < dpp_cell_output.getNumberOfElements(); i++) {
+		double current_dpp_level = dpp_cell_output[i];
+
+		dppLevelV.push_back(current_dpp_level);
+	}
+	for ( int i =0 ; i< dppLevelV.size() ; i++) {
+
+		cout << "dpp level for node " << i << " is equal to " << dppLevelV.at(i) << endl ; 
+	} 
+	//main_signaling is the matlab funct ionto compute chemical signal for each cell. 
+	//input should be: 
+	//vector of cell index, node x,y positions
+	//vector of cell centroids, i.e. x,y postions
+
+	//output should be: 
+
+	//if (!(ep = engOpen(""))) {
+	//	fprintf(stderr, "\nCan't start MATLAB engine\n");
+	//	return EXIT_FAILURE;
+	//}
+
+
+
+	/*
 	srand(time(NULL));
 
  	double max_Rx=max (maxX-Center_X,Center_X-minX) ; 
@@ -69,17 +192,12 @@ void Signal::exportGeometryInfo() {
 	cout << "size of node is active in signal module is " << nodeIsActiveHost.size() << endl ; 
 	cout << "max total number of active nodes in signal module is " << maxTotalNumActiveNodes  << endl ; 
 	cout << "max of all nodes per cell in signal module is " << maxAllNodePerCell << endl ; 
-	//std :: string  txtFileName="ExportTisuProp_" + patch::to_string(periodCount)+".txt" ; 
 	std :: string  txtFileName="ExportCellProp_" + patch::to_string(periodCount)+".txt" ; 
 	ofstream ExportOut ; 
 	ExportOut.open(txtFileName.c_str()); 
-	//ExportOut << "Time (s), Tissue_CenterX(micro meter),Max_Length_X(micro meter)"<<endl; 
-	//ExportOut<<curTime<<","<<Center_X<<","<<max_Rx<<endl   ;
-	//ExportOut << "CellRank,CellCenterX,CellCenterY"<<endl;
 	for (int k=0; k<numActiveCells; k++){
 		ExportOut<<k<<","<<cellCenterX[k]<<","<<cellCenterY[k]<<endl   ;
 	}
- 	//ExportOut << "CellRank,MembraneNodeX,MembraneNodeY"<<endl;
 
 	for ( uint i=0 ; i< maxTotalNumActiveNodes ; i++) {
 
@@ -93,10 +211,11 @@ void Signal::exportGeometryInfo() {
 	ExportOut.flush() ;
 	cout << "I exported  the data for signaling model"<< endl ; 
 	ExportOut.close() ;  
+	*/
 		
 }
 
-
+//NOT NEEDED
 void Signal::importSignalInfoCellLevel() {
 
 
@@ -147,7 +266,7 @@ void Signal::importSignalInfoCellLevel() {
 
 
 
-
+//NOT NEEDED
 void Signal::importSignalInfoTissueLevel() {
 
 

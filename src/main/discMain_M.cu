@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include "MeshGen.h"
+//#include "MeshGen.h"
 #include "commonData.h"
 #include "CellInitHelper.h"
 #include <vector>
@@ -199,6 +199,9 @@ int main(int argc, char* argv[]) {
 			}
 			aniFrame++;
 		}
+	
+		//start matlab engine here::::::
+
 //Ali		simuDomain.runAllLogic_M(mainPara.dt);
 		simuDomain.runAllLogic_M(mainPara.dt,mainPara.Damp_Coef,mainPara.InitTimeStage);  //Ali
 	}

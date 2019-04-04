@@ -8,11 +8,11 @@ file(GLOB TEST_SRC_FILES ${CMAKE_PERFTEST_DIR}/*.cpp ${CMAKE_PERFTEST_DIR}/*.cu)
 # DEBUGGING: 
 #file(GLOB TEST_SRC_FILES ${CMAKE_UNITTEST_DIR}/*.cpp )
 #MESSAGE(${TEST_SRC_FILES})
-cuda_add_executable(${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
+add_executable(${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
 add_dependencies(${PROJECT_TEST_NAME} gtest)
 add_dependencies(${PROJECT_TEST_NAME} gtest_main)
 add_dependencies(${PROJECT_TEST_NAME} SceGPU)
-
+ 
 if(NOT WIN32)
         #target_link_libraries(${PROJECT_TEST_NAME} pthread)
         target_link_libraries(${PROJECT_TEST_NAME} SceGPU)

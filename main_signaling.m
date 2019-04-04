@@ -1,4 +1,5 @@
-function main_signaling(index_couple)
+function signal_output = main_signaling(   arr_data_cell_index, arr_data_cell_pos_x, arr_data_cell_pos_y, ...
+			arr_data_node_index, arr_data_node_pos_x, arr_data_node_pos_y)
 
 global thres_lateral thres_edge thres_nodes thres_neighbor
 thres_lateral = 0.64; % threshold for determining neighboring cells
@@ -6,15 +7,23 @@ thres_edge = 0.005;
 thres_nodes = 0.75;  % need to adjust carefully to avoid triangles at junctions
 thres_neighbor = 0.5;
 
-% load cell configuration from mechanical submodel
-epi_nodes = load(['ExportCellProp_' num2str(index_couple) '.txt']);
-epi_nodes(end,:) = [];
+ arr_data_cell_index =  arr_data_cell_index - 1;
+ arr_data_node_index = arr_data_node_index - 1;
+ 
 
-total_cell = max(epi_nodes(:,1))+1; 
-cell_nodes = epi_nodes(total_cell+1:end,:);
-cell_nodes = [cell_nodes(:,2:3), cell_nodes(:,1)];
+% load cell configuration from mechanical submodel
+%epi_nodes = load(['ExportCellProp_' num2str(index_couple) '.txt']);
+%epi_nodes(end,:) = [];
+
+total_cell = max(double(arr_data_cell_index))+1;%index in c code has + 1 %max(epi_nodes(:,1))+1; 
+%cell_nodes = epi_nodes(total_cell+1:end,:);
+%cell_nodes = [cell_nodes(:,2:3), cell_nodes(:,1)];
+
+cell_nodes = [arr_data_node_pos_x, arr_data_node_pos_y,double(arr_data_node_index)];%[node_pos_x, node_pos_y];
+centroid_nodes = [arr_data_cell_pos_x, arr_data_cell_pos_y];
+
 for i = 1:total_cell
-    eval(['centroid_' num2str(i-1) '=epi_nodes(i,2:3);']);
+    eval(['centroid_' num2str(i-1) '=[arr_data_cell_pos_x(i),arr_data_cell_pos_y(i)];']);
 end
 
 dist_nodes = pdist2(cell_nodes(:,1:2),cell_nodes(:,1:2));
@@ -57,7 +66,6 @@ for i = 0:total_cell-1
     end 
     newcell(delete_edge,:) = [];
     newcell = [newcell; add_edge];
-            
     % sort the nodes counter-clockwisely
     eval(['[newcell] = sort_counterclock(newcell,centroid_' num2str(i) ');']);
 %     plot(newcell(:,1),newcell(:,2),'*'); pause
@@ -438,7 +446,7 @@ for i = 0:total_cell-1
                     if isempty(junction_1234)
                         [v12,v23,v34,v41] = find_inner_quad(e12,e23,e34,e41);
                         centroid1234 = (v12+v23+v34+v41)/4;
-                        if min(pdist2(centroid1234,epi_nodes(1:total_cell,2:3)))>1
+                        if min(pdist2(centroid1234,centroid_nodes))>1
                             eval(['vt_' num2str(c1) ' = [vt_' num2str(c1) '; centroid1234];']);
                             eval(['vt_' num2str(c2) ' = [vt_' num2str(c2) '; centroid1234];']);
                             eval(['vt_' num2str(c3) ' = [vt_' num2str(c3) '; centroid1234];']);
@@ -459,18 +467,18 @@ for i = 0:total_cell-1
 end
 
 
-figure(3); hold on;
-plot(cell_nodes(:,1),cell_nodes(:,2),'r.','MarkerSize',10);
-for i = 0:total_cell-1
-   eval(['plot(vt_' num2str(i) '(:,1),vt_' num2str(i) '(:,2),''*'',''MarkerSize'',10);']); 
-end
-for i = 0:total_cell-1
-    eval(['temp = vt_' num2str(i) ';']);
-   plot([temp(:,1); temp(1,1)],[temp(:,2); temp(1,2)],'b','LineWidth',2)
-   for j = 1:size(temp,1)
-       eval(['plot([centroid_' num2str(i) '(1) temp(' num2str(j) ',1)],[centroid_' num2str(i) '(2) temp(' num2str(j) ',2)],''b'',''LineWidth'',2);']);
-   end
-end
+% figure(3); hold on;
+% plot(cell_nodes(:,1),cell_nodes(:,2),'r.','MarkerSize',10);
+% for i = 0:total_cell-1
+%    eval(['plot(vt_' num2str(i) '(:,1),vt_' num2str(i) '(:,2),''*'',''MarkerSize'',10);']); 
+% end
+% for i = 0:total_cell-1
+%     eval(['temp = vt_' num2str(i) ';']);
+%    plot([temp(:,1); temp(1,1)],[temp(:,2); temp(1,2)],'b','LineWidth',2)
+%    for j = 1:size(temp,1)
+%        eval(['plot([centroid_' num2str(i) '(1) temp(' num2str(j) ',1)],[centroid_' num2str(i) '(2) temp(' num2str(j) ',2)],''b'',''LineWidth'',2);']);
+%    end
+% end
 
 
 %saveas(figure(1),'triangle_mesh.fig'); 
@@ -615,9 +623,9 @@ DT = Dpp_mat(:,3);
 DT_cell = zeros(total_cell,1);
 pMad = Dpp_mat(:,4);
 pMad_cell = zeros(total_cell,1);
-figure(2); 
-% subplot(2,2,1); 
-hold on;
+% figure(2); 
+% % subplot(2,2,1); 
+% hold on;
 num_tri_pre=0;
 for i = 0:total_cell-1
     eval(['num_tri = num_tri_' num2str(i) ';']);
@@ -627,7 +635,7 @@ for i = 0:total_cell-1
         else
              jnext = j+1;
          end
-        eval(['fill([vt_' num2str(i) '(j,1) vt_' num2str(i) '(jnext,1) centroid_' num2str(i) '(1)],[vt_' num2str(i) '(j,2) vt_' num2str(i) '(jnext,2) centroid_' num2str(i) '(2)],Dpp(num_tri_pre+j),''LineStyle'',''none'');']);
+%         eval(['fill([vt_' num2str(i) '(j,1) vt_' num2str(i) '(jnext,1) centroid_' num2str(i) '(1)],[vt_' num2str(i) '(j,2) vt_' num2str(i) '(jnext,2) centroid_' num2str(i) '(2)],Dpp(num_tri_pre+j),''LineStyle'',''none'');']);
      end
      Dpp_cell(i+1) = sum(Dpp(num_tri_pre+1:num_tri_pre+num_tri))/num_tri;
      num_tri_pre = num_tri_pre + num_tri;
@@ -682,18 +690,17 @@ for i = 0:total_cell-1
  end
 % colorbar;
 % saveas(figure(2),'Dpp_signaling.fig');
-figure(2);
-plot(cell_nodes(:,1),cell_nodes(:,2),'.','Color',[1 1 1],'MarkerSize',12);
-ch = colorbar('Ticks',[0.01 0.07],'TickLabels',{'low','high'});
-set(ch,'FontSize',25);
-ylabel(ch,'Dpp signaling')
-filename = ['Dpp_cell_T' num2str(index_couple) '.txt'];
-%fileID = fopen(filename,'w');
-fileID = fopen('tmp.txt','w+');
-fprintf(fileID,'%.4f\n',Dpp_cell);
-fclose(fileID);
-movefile ('tmp.txt',filename) ; 
+% figure(2);
+% plot(cell_nodes(:,1),cell_nodes(:,2),'.','Color',[1 1 1],'MarkerSize',12);
+% ch = colorbar('Ticks',[0.01 0.07],'TickLabels',{'low','high'});
+% set(ch,'FontSize',25);
+% ylabel(ch,'Dpp signaling')
+% filename = ['Dpp_cell_T' num2str(index_couple) '.txt'];
+% %fileID = fopen(filename,'w');
+% fileID = fopen('tmp.txt','w+');
+% fprintf(fileID,'%.4f\n',Dpp_cell);
+% fclose(fileID);
+% movefile ('tmp.txt',filename) ; 
 
-
-
+signal_output = Dpp_cell;
 
