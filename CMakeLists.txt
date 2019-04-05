@@ -3,15 +3,15 @@ cmake_minimum_required (VERSION 3.12)
 #set (CMAKE_CXX_STANDARD 11)
 set(PROJECT_NAME_STR SceCellsGPU)
  
-set(CMAKE_CXX_COMPILER /opt/crc/g/gcc/7.1.0/bin/g++ CACHE PATH "" FORCE)
+set(CMAKE_CXX_COMPILER /opt/linux/centos/7.x/x86_64/easybuild/pkgs/GCCcore/6.3.0/bin/gcc CACHE PATH "" FORCE)
 
-#set(CUDA_TOOLKIT_ROOT_DIR /opt/crc/c/cuda/10.0)
+#set(CUDA_TOOLKIT_ROOT_DIR /opt/linux/centos/7.x/x86_64/pkgs/cuda/9.1)
 #MESSAGE("CUDA_TOOLKIT_ROOT_DIR: " ${CUDA_TOOLKIT_ROOT_DIR})
 	
 project(${PROJECT_NAME_STR} LANGUAGES CXX CUDA)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.1.0")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.3.0")
     message(FATAL_ERROR "Insufficient gcc version")
   endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

@@ -27,11 +27,6 @@ if(NOT WIN32)
                 ${GOOGLETEST_DIR}/libgtest_main.a
         )
 
-	#	target_link_libraries(${DISK_PROJECT_NAME}
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libeng.so
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so 
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmex.so
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmat.so )
 endif()
 
 set(MODEL_TEST_NAME runModelTest)
@@ -101,17 +96,12 @@ if(NOT WIN32)
         )
 
 	target_link_libraries(${DISK_M_PROJECT_NAME}
-				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libeng.so
-				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so 
-				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmex.so
-				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmat.so
-				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/bin/glnxa64/libMatlabDataArray.so
-				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/extern/bin/glnxa64/libMatlabEngine.so)
+				/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libeng.so
+				/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libmx.so 
+				/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libmex.so
+				/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libmat.so
+				/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/extern/bin/glnxa64/libMatlabDataArray.so
+				/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/extern/bin/glnxa64/libMatlabEngine.so)
 							
-	#	target_link_libraries(${DISK_M_PROJECT_NAME}
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libeng.so
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmx.so 
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmex.so
-	#				/afs/crc.nd.edu/x86_64_linux/m/matlab/R2017b/bin/glnxa64/libmat.so )
 endif()
 

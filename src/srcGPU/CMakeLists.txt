@@ -16,7 +16,6 @@ add_library(SceGPU STATIC
 	SceCells.h
 	SimulationDomainGPU.cu
 	SimulationDomainGPU.h
-	Structures_Misc.h
 )
 
 
