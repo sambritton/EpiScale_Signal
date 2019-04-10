@@ -1,17 +1,17 @@
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required (VERSION 2.8)
 
 #set (CMAKE_CXX_STANDARD 11)
 set(PROJECT_NAME_STR SceCellsGPU)
  
-set(CMAKE_CXX_COMPILER /opt/linux/centos/7.x/x86_64/easybuild/pkgs/GCCcore/6.3.0/bin/gcc CACHE PATH "" FORCE)
-
+#set(CMAKE_CXX_COMPILER /opt/linux/centos/7.x/x86_64/easybuild/pkgs/GCCcore/4.9.3/bin/gcc CACHE PATH "" FORCE)
+set(CMAKE_CXX_COMPILER "/opt/linux/centos/7.x/x86_64/easybuild/pkgs/GCCcore/4.9.3/bin/gcc")
 #set(CUDA_TOOLKIT_ROOT_DIR /opt/linux/centos/7.x/x86_64/pkgs/cuda/9.1)
 #MESSAGE("CUDA_TOOLKIT_ROOT_DIR: " ${CUDA_TOOLKIT_ROOT_DIR})
 	
 project(${PROJECT_NAME_STR} LANGUAGES CXX CUDA)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.3.0")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9.0")
     message(FATAL_ERROR "Insufficient gcc version")
   endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -49,6 +49,7 @@ endif()
 # between compute_20 and compute_30. 
 # Therefore, for compatibility reason, compute 2.0 is used.
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -DTHRUST_DEBUG)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -std=c++11)
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -gencode arch=compute_30,code=compute_30)
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -gencode arch=compute_50,code=compute_50)
 
@@ -130,7 +131,7 @@ MESSAGE("CMAKE_CXX_COMPLIER: " ${CMAKE_CXX_COMPLIER})
 # This manual CXX FLAGS setting is required, because the some version of CMAKE would use an unsupported CMAKE_CXX_FLAGS and result in compliation failure.
 # more specifically, -fstack-protector-strong option is not supported by g++ until g++-4.9, but it is enabled by default in CMake 2.8.12
 # however g++-4.9 is not supported by nvcc 5.5
-set(CMAKE_CXX_FLAGS "-g -O0 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security  -frounding-math")
+set(CMAKE_CXX_FLAGS "-g -std=c++11 -O0 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security  -frounding-math")
 MESSAGE("manually resetting g++ flags to : " ${CMAKE_CXX_FLAGS})
 
 
