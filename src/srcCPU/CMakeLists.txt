@@ -3,9 +3,9 @@
 include_directories(${THRUST_INCLUDE_DIR}) #specifies path that compiler looks in while searching for header files
  
 include_directories(${COMMON_INCLUDES})
-include_directories(/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/extern/include)
-include_directories(/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64)
-include_directories(/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/extern/include/MatlabEngine)
+include_directories(/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/extern/include)
+include_directories(/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/bin/glnxa64)
+include_directories(/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/extern/include/MatlabEngine)
 add_library(SceInit STATIC
         CellInitHelper.h
         CellInitHelper.cpp
@@ -22,9 +22,9 @@ add_library(SceInit STATIC
 target_compile_features(SceInit PUBLIC cxx_std_11)
 
 target_link_libraries(SceInit
-			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libeng.so
-			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libmx.so 
-			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libmex.so
-			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/bin/glnxa64/libmat.so
-			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/extern/bin/glnxa64/libMatlabDataArray.so
-			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018a/extern/bin/glnxa64/libMatlabEngine.so)
+			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/bin/glnxa64/libeng.so
+			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/bin/glnxa64/libmx.so 
+			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/bin/glnxa64/libmex.so
+			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/bin/glnxa64/libmat.so
+			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/extern/bin/glnxa64/libMatlabDataArray.so
+			/opt/linux/centos/7.x/x86_64/pkgs/MATLAB/R2018b/extern/bin/glnxa64/libMatlabEngine.so)

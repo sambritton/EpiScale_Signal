@@ -1483,7 +1483,7 @@ void SceCells::exchSignal(){
 		thrust:: copy (cellInfoVecs.centerCoordX.begin(),cellInfoVecs.centerCoordX.begin()+allocPara_m.currentActiveCellCount, signal.cellCenterX.begin()); 
 		thrust:: copy (cellInfoVecs.centerCoordY.begin(),cellInfoVecs.centerCoordY.begin()+allocPara_m.currentActiveCellCount, signal.cellCenterY.begin()); 
 		
-        	signal.updateSignal(Tisu_MinX,Tisu_MaxX,Tisu_MinY,Tisu_MaxY,curTime,totalNodeCountForActiveCells,allocPara_m.currentActiveCellCount) ; //Ali
+        	//signal.updateSignal(Tisu_MinX,Tisu_MaxX,Tisu_MinY,Tisu_MaxY,curTime,totalNodeCountForActiveCells,allocPara_m.currentActiveCellCount) ; //Ali
         	assert(cellInfoVecs.cell_Dpp.size()==signal.dppLevel.size());
         	thrust::copy(signal.dppLevel.begin(),signal.dppLevel.end(),cellInfoVecs.cell_Dpp.begin()) ;
 		//currentActiveCellCountOld=allocPara_m.currentActiveCellCount;
