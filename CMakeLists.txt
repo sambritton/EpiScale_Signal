@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 2.8)
 set(PROJECT_NAME_STR SceCellsGPU)
  
 #set(CMAKE_CXX_COMPILER /opt/linux/centos/7.x/x86_64/easybuild/pkgs/GCCcore/4.9.3/bin/gcc CACHE PATH "" FORCE)
-set(CMAKE_CXX_COMPILER "/opt/linux/centos/7.x/x86_64/easybuild/pkgs/GCCcore/4.9.3/bin/gcc")
+#set(CMAKE_CXX_COMPILER "/opt/linux/centos/7.x/x86_64/easybuild/pkgs/GCCcore/4.9.3/bin/gcc")
 #set(CUDA_TOOLKIT_ROOT_DIR /opt/linux/centos/7.x/x86_64/pkgs/cuda/9.1)
 #MESSAGE("CUDA_TOOLKIT_ROOT_DIR: " ${CUDA_TOOLKIT_ROOT_DIR})
 	

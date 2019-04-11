@@ -19,10 +19,11 @@ if(NOT WIN32)
         target_link_libraries(${PROJECT_TEST_NAME} SceGPU)
         target_link_libraries(${PROJECT_TEST_NAME} SceInit)
         target_link_libraries(${PROJECT_TEST_NAME} SceUtils)
-        target_link_libraries(${PROJECT_TEST_NAME}
-                ${GOOGLETEST_DIR}/libgtest.a
-                ${GOOGLETEST_DIR}/libgtest_main.a
-        )
+        
+		#target_link_libraries(${PROJECT_TEST_NAME}
+        #        ${GOOGLETEST_DIR}/libgtest.a
+        #        ${GOOGLETEST_DIR}/libgtest_main.a
+        #)
 endif()
 
 add_test(unitTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_TEST_NAME})
