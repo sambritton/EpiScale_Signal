@@ -25,11 +25,12 @@ To run the code:
    (2) Run the exacutable: ./bin/runDiscSimulation_M
 
 To change clusters, you will need to change the modules in build_Episcale_Signal to the commands of the cluster in use. 
-    For example, to use on the crc cluster, first change the modules to: 
+    For example, to use on the crc cluster, log into a gpu using the command qrsh -q gpu -l gpu_card=1
+    Next, change the modules in the build_Episcale_Signal to: 
     module purge
     module load cmake
     module load cuda/9.1
     module load gcc/6.2.0
     module load matlab/2018b
-    You will also need to change the following line since matlab has a different location:
+    You will also need to change the following line since matlab has a slightly different location:
     -DMATLAB_DIR=$(dirname $(dirname $(dirname $(which matlab)))) \
