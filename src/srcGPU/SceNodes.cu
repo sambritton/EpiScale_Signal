@@ -563,7 +563,7 @@ void SceNodes::debugNAN() {
 	double res = thrust::reduce(infoVecs.nodeLocX.begin(),
 			infoVecs.nodeLocX.begin() + totalActiveNodeC);
 
-	if (isnan(res)) {
+	if (std::isnan(res)) {
 		std::cout << "fatal error! NAN found" << std::endl;
 		std::cout.flush();
 		exit(0);
@@ -663,7 +663,7 @@ void SceNodes::initValues(std::vector<CVector>& initBdryCellNodePos,
 
 	for (int i = 0; i < initECMNodePosX.size(); i++) {
 		assert(infoVecs.nodeLocX[i + beginAddressOfECM] == initECMNodePosX[i]);
-		assert(!isnan(initECMNodePosX[i]));
+		assert(!std::isnan(initECMNodePosX[i]));
 	}
 
 // copy x and y position of nodes of FNM cells to actual node position.
