@@ -25,5 +25,5 @@ cmake \
 ENABLE_TESTS_COMPILATION=False \
 ../
 
-make -j 12
+make
 
