@@ -23,6 +23,9 @@ To run the code:
    (0) Stay logged into the gpu.
    (1) First load the modules used in build_Episcale_Signal.sh
    (2) Run the exacutable: ./bin/runDiscSimulation_M
+To submit a job, use the SBATCH.sh file and run the command:
+   (1) sbatch -p gpu --gres=gpu:1 --mem=5g --time=250:00:00 SBATCH.sh 
+   This file runs the SBATCH.sh file with a request for 1 gpu with 5gb memory for 250 hours. 
 
 To change clusters, you will need to change the modules in build_Episcale_Signal to the commands of the cluster in use. 
     For example, to use on the crc cluster, log into a gpu using the command qrsh -q gpu -l gpu_card=1

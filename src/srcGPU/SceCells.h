@@ -654,7 +654,7 @@ struct CalCurvatures: public thrust::unary_function<CurvatureData, CVec6> {
 		uint activeMembrCount = thrust::get<0>(bData);
 		uint cellRank = thrust::get<1>(bData);
 		uint nodeRank = thrust::get<2>(bData);
-		double f_MI_M_X = thrust::get<3>(bData);
+		double f_MI_M_X = thrust::get<3>(bData); 
 		double f_MI_M_Y = thrust::get<4>(bData);
 		double f_MI_M_T= thrust::get<5>(bData);
 		double f_MI_M_N = thrust::get<6>(bData);
@@ -2173,10 +2173,10 @@ struct BC_Tissue_Damp: public thrust::unary_function<CVec3,CVec2> {
                 double Dist=sqrt (
                             (CenterCellX-TCenterX)*(CenterCellX-TCenterX)+
                            (CenterCellY-TCenterY)*(CenterCellY-TCenterY)) ; 
-                double Damp=_Damp_Coef + max(0.0,Dist/TRadius-0.8)*1.0/(1.0-0.8)*0*_Damp_Coef     ;              
+                double Damp=_Damp_Coef;// + max(0.0,Dist/TRadius-0.8)*1.0/(1.0-0.8)*0*_Damp_Coef     ;              
                         
 			return thrust::make_tuple(CenterCellX,Damp);
-		}
+		} 
                 else { 
                         return thrust::make_tuple(CenterCellX,_Damp_Coef);
                      }

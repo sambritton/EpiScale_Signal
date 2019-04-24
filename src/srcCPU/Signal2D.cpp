@@ -148,7 +148,7 @@ void Signal::exportGeometryInfo() {
 		std::move(data_node_pos_y));
 
 
-
+ 
 	matlab::data::TypedArray<double> dpp_cell_output = matlabPtr->
 		feval(convertUTF8StringToUTF16String("main_signaling"), {
 			arr_data_cell_index, arr_data_cell_pos_x, arr_data_cell_pos_y,
