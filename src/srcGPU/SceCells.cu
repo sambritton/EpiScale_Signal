@@ -1446,12 +1446,12 @@ void SceCells::exchSignal(){
 		uint maxTotalNodes=nodes->getInfoVecs().nodeLocX.size() ; 
     	signal.Initialize(allocPara_m.maxAllNodePerCell,allocPara_m.maxMembrNodePerCell,maxTotalNodes, allocPara_m.maxCellCount) ;
 		cout << " I passed the initializtion for signaling module" << endl ; 
-	}
+	} 
 
    	lastTimeExchange=lastTimeExchange+dt ;
 	cout << "last time exchange is " << lastTimeExchange << endl ; 
 	cout << "dt is " << dt << endl ;  
-   	double exchPeriod=360 ; 
+   	double exchPeriod=1 ; 
 	if ( lastTimeExchange>exchPeriod) {
 		lastTimeExchange=0 ; 
 		//vector<CVector> cellCentersHost ; 
