@@ -10,6 +10,16 @@ add_library(SceInit STATIC
         CellInitHelper.cpp
         Signal2D.h
 		Signal2D.cpp
+		Signal_Calculator.hpp
+		Signal_Calculator.cpp
+		Tissue.hpp
+		Tissue.cpp
+		Mesh.hpp
+		Mesh.cpp
+		Cell.hpp
+		Cell.cpp
+		common.cpp
+		common.hpp
         ${COMMON_INCLUDES}/Point2D.cpp
         ${COMMON_INCLUDES}/Point2D.h
         ${COMMON_INCLUDES}/ConfigParser.h
