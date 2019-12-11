@@ -10,8 +10,8 @@
 
 //#include "matlab_engine.hpp"
 //#include "engine_factory.hpp"
-#include "MatlabDataArray.hpp"
-#include "MatlabEngine.hpp"
+//#include "MatlabDataArray.hpp"
+//#include "MatlabEngine.hpp"
 
 namespace patch
 {
@@ -62,6 +62,7 @@ void Signal::updateSignal(double minX, double maxX, double minY, double maxY, do
 	//importSignalInfoCellLevel()	; 
 	processSignalInfoCellLevel()	; 
 
+	cout << "I am in update signal ended" << std::endl ;
 }
 
 void Signal::exportGeometryInfo() {
@@ -82,7 +83,7 @@ void Signal::exportGeometryInfo() {
 	}
 
 
-
+	/*
 	std::unique_ptr<matlab::engine::MATLABEngine> matlabPtr = matlab::engine::startMATLAB();
 
 	using namespace matlab::engine;
@@ -224,6 +225,7 @@ void Signal::importSignalInfoCellLevel() {
 			dppLevelV.push_back(dppLevelTmp) ;  
 		}	
 		cout <<"first dpp value is"<< dppLevelV.at(0)<< endl ; 	
+		*/
 }
 
 
@@ -277,9 +279,11 @@ void Signal::importSignalInfoTissueLevel() {
 		cout <<"first dpp value is"<< dppLevelV.at(0)<< endl ; 	
 }
 
-
+//comment from Sam Britton
+//This function should be changed to use be more safe. 
+//If dppLevelV is empty, then it causes a memory error since the length of the vector is not checked. 
 void Signal::processSignalInfoTissueLevel() {
-
+	
 
 	vector<double> dppLevels_Cell ;
 	dppLevels_Cell.clear() ;
